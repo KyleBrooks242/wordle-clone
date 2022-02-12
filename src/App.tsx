@@ -3,6 +3,7 @@ import './styles/App.scss';
 import { InputField } from './InputField'
 import { Stack } from "@mui/material";
 import {IWordleLetter} from "./interfaces/IWordleLetter";
+import {wordleWords} from "./word-lists/wordleWords";
 
 const WORD_LENGTH = 6;
 const NUMBER_OF_GUESSES = 6;
@@ -14,16 +15,13 @@ interface IState  {
     wordToGuess: string
 }
 
+const wordToGuess = wordleWords[Math.floor(Math.random() * 501)];
+
 const App = () => {
 
-    // useEffect(() => {
-    //     async function getWordList() {
-    //         await getFullWordList();
-    //     }
-    //
-    //     getWordList();
-    // }, []);
-
+    //TODO Don't double mark letters
+    //Don't allow invalid word guesses
+    //Don't allow more than 6 guesses (display a 'You lose' screen of some sort)
     useEffect(() => {
         window.addEventListener('keydown', (event) => {
             let tempState: IState = state;
@@ -33,7 +31,8 @@ const App = () => {
                 //Check if word is valid
                 //If valid, score word
                 console.log("Enter Key Pressed and word length met");
-                calculateCorrectLetters(tempState);
+                console.log(`tempState.wordToGuess: ${tempState.wordToGuess}`)
+                calculateCorrectLetters(state);
                 tempState.guessIndex += 1;
                 tempState.letterIndex = 0;
                 setState({...tempState} )
@@ -44,7 +43,6 @@ const App = () => {
                 tempState.letterIndex = ( state.letterIndex === 0 ) ? state.letterIndex : state.letterIndex - 1;
                 guessArray[state.guessIndex][state.letterIndex].value = '';
                 console.log(tempState.letterIndex);
-                console.log("DONE BACKSPACE");
                 setState({...tempState})
             }
             else if (event.which >= 65 && event.which <= 90) {
@@ -57,13 +55,13 @@ const App = () => {
             console.log(`LEAVING EVENT LISTENER: tempState.letterIndex: ${tempState.letterIndex}`);
 
         });
-    }, [null])
+    }, [])
 
 
     const calculateCorrectLetters = (tempState: IState) => {
         console.log("Calculating...!")
         const guess = tempState.guessArray[state.guessIndex];
-        const word = state.wordToGuess;
+        const word = tempState.wordToGuess;
         guess.forEach((letter, index) => {
             console.log(`LETTER: ${letter.value} word[index]: ${word[index]}`);
             if (letter.value === word[index]) {
@@ -89,9 +87,7 @@ const App = () => {
         }
         return guessList;
     }
-
-    const wordToGuess = 'tumors'; //TODO get from random list
-
+    console.log('Setting Initial State...');
     const [state, setState] = useState(
         {
             guessArray : [
@@ -109,12 +105,12 @@ const App = () => {
         }
     )
 
+    console.log("Word to guess: ", wordToGuess)
+
     return (
         <div className="App">
           <header className="App-header">
-              <body>
-                { generateGuessInputs() }
-              </body>
+            { generateGuessInputs() }
           </header>
         </div>
     );
