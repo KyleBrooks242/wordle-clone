@@ -1,9 +1,10 @@
 import React, {useEffect, useState} from 'react';
 import './styles/App.scss';
 import { InputField } from './InputField'
-import { Stack } from "@mui/material";
-import {IWordleLetter} from "./interfaces/IWordleLetter";
-import {wordleWords} from "./word-lists/wordleWords";
+import { Stack } from '@mui/material';
+import {IWordleLetter} from './interfaces/IWordleLetter';
+import { ValidWords } from './word-lists/ValidWords';
+import { WordleWords } from './word-lists/WordleWords';
 
 const WORD_LENGTH = 6;
 const NUMBER_OF_GUESSES = 6;
@@ -15,28 +16,35 @@ interface IState  {
     wordToGuess: string
 }
 
-const wordToGuess = wordleWords[Math.floor(Math.random() * 501)];
+const wordToGuess = WordleWords[Math.floor(Math.random() * 501)];
 
 const App = () => {
 
     //TODO Don't double mark letters
-    //Don't allow invalid word guesses
     //Don't allow more than 6 guesses (display a 'You lose' screen of some sort)
     useEffect(() => {
         window.addEventListener('keydown', (event) => {
-            let tempState: IState = state;
-            let guessArray: Array<Array<IWordleLetter>> = tempState.guessArray
+            const tempState: IState = state;
+            const guessArray: Array<Array<IWordleLetter>> = tempState.guessArray;
+            //TODO could this be .reduce?
+            const wordGuessed = guessArray[tempState.guessIndex].map((letter) => {
+                return letter.value
+            }).join('');
+
 
             if (event.key === 'Enter' && state.letterIndex === WORD_LENGTH) {
-                //Check if word is valid
-                //If valid, score word
-                console.log("Enter Key Pressed and word length met");
+                // console.log("Enter Key Pressed and word length met");
                 console.log(`tempState.wordToGuess: ${tempState.wordToGuess}`)
-                calculateCorrectLetters(state);
-                tempState.guessIndex += 1;
-                tempState.letterIndex = 0;
-                setState({...tempState} )
-                //TODO PREVENT GOING OVER MAX NUMBER OF GUESSES
+                if (isWordValid(wordGuessed)) {
+                    calculateCorrectLetters(state);
+                    tempState.guessIndex += 1;
+                    tempState.letterIndex = 0;
+                    setState({...tempState} )
+                    //TODO PREVENT GOING OVER MAX NUMBER OF GUESSES
+                }
+                else {
+                    console.log(`Not a valid word!`);
+                }
 
             }
             else if (event.key === 'Backspace') {
@@ -52,24 +60,44 @@ const App = () => {
                     setState({...tempState});
                 }
             }
-            console.log(`LEAVING EVENT LISTENER: tempState.letterIndex: ${tempState.letterIndex}`);
+            // console.log(`LEAVING EVENT LISTENER: tempState.letterIndex: ${tempState.letterIndex}`);
 
         });
-    }, [])
+    }, []);
 
+
+    const isWordValid = (wordGuessed: string) => {
+        return ValidWords.includes(wordGuessed);
+    }
 
     const calculateCorrectLetters = (tempState: IState) => {
-        console.log("Calculating...!")
         const guess = tempState.guessArray[state.guessIndex];
         const word = tempState.wordToGuess;
+        const wordMap = tempState.wordToGuess.split('').map(letter => {
+            return {
+                letter: letter,
+                guessed: false
+            }
+        })
         guess.forEach((letter, index) => {
-            console.log(`LETTER: ${letter.value} word[index]: ${word[index]}`);
-            if (letter.value === word[index]) {
+            console.log(`LETTER: ${letter.value} word[index]: ${wordMap[index].letter}`);
+            if (letter.value === wordMap[index].letter && !wordMap[index].guessed) {
                 letter.color = 2
+                wordMap[index].guessed = true;
             }
+            //TODO this is messed up :(
             else if (word.includes(letter.value)) {
-                letter.color = 1
+                console.log("THIS HAPPENS")
+                const index = wordMap.findIndex((element: any) => (element.letter = letter.value && !element.guessed))
+                if (index >= 0) {
+                    console.log(`${JSON.stringify(wordMap[index])}`)
+                    console.log("THIS ALSO HAPPENS")
+                    letter.color = 1
+                    wordMap[index].guessed = true;
+
+                }
             }
+            console.log(JSON.stringify(wordMap[index]));
         })
     }
 
@@ -87,7 +115,7 @@ const App = () => {
         }
         return guessList;
     }
-    console.log('Setting Initial State...');
+
     const [state, setState] = useState(
         {
             guessArray : [
@@ -101,16 +129,19 @@ const App = () => {
             ],
             guessIndex: 0,
             letterIndex: 0,
-            wordToGuess: wordToGuess
+            // wordToGuess: wordToGuess
+            wordToGuess: "pickle"
         }
     )
 
     console.log("Word to guess: ", wordToGuess)
 
     return (
-        <div className="App">
-          <header className="App-header">
-            { generateGuessInputs() }
+        <div className={'App'}>
+          <header className={'App-header'}>
+                <h2>CHURDLE</h2>
+                <h4>WORDLE, BUT WORSE</h4>
+                { generateGuessInputs() }
           </header>
         </div>
     );
