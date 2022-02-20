@@ -33,8 +33,6 @@ const App = () => {
 
 
             if (event.key === 'Enter' && state.letterIndex === WORD_LENGTH) {
-                // console.log("Enter Key Pressed and word length met");
-                console.log(`tempState.wordToGuess: ${tempState.wordToGuess}`)
                 if (isWordValid(wordGuessed)) {
                     calculateCorrectLetters(state);
                     tempState.guessIndex += 1;
@@ -60,7 +58,6 @@ const App = () => {
                     setState({...tempState});
                 }
             }
-            // console.log(`LEAVING EVENT LISTENER: tempState.letterIndex: ${tempState.letterIndex}`);
 
         });
     }, []);
@@ -79,25 +76,23 @@ const App = () => {
                 guessed: false
             }
         })
-        guess.forEach((letter, index) => {
-            console.log(`LETTER: ${letter.value} word[index]: ${wordMap[index].letter}`);
-            if (letter.value === wordMap[index].letter && !wordMap[index].guessed) {
+        guess.forEach((letter, position) => {
+            console.log(`LETTER: ${letter.value} word[index]: ${wordMap[position].letter}`);
+            if (letter.value === wordMap[position].letter && !wordMap[position].guessed) {
+                console.log(`EXACT MATCH!!`);
                 letter.color = 2
-                wordMap[index].guessed = true;
+                wordMap[position].guessed = true;
             }
-            //TODO this is messed up :(
-            else if (word.includes(letter.value)) {
-                console.log("THIS HAPPENS")
-                const index = wordMap.findIndex((element: any) => (element.letter = letter.value && !element.guessed))
-                if (index >= 0) {
-                    console.log(`${JSON.stringify(wordMap[index])}`)
-                    console.log("THIS ALSO HAPPENS")
-                    letter.color = 1
-                    wordMap[index].guessed = true;
 
+            else if (word.includes(letter.value)) {
+                for (const item of wordMap) {
+                    if (item.letter === letter.value && !item.guessed) {
+                        letter.color = 1;
+                        item.guessed = true;
+                        break;
+                    }
                 }
             }
-            console.log(JSON.stringify(wordMap[index]));
         })
     }
 
@@ -129,8 +124,7 @@ const App = () => {
             ],
             guessIndex: 0,
             letterIndex: 0,
-            // wordToGuess: wordToGuess
-            wordToGuess: "pickle"
+            wordToGuess: wordToGuess
         }
     )
 
