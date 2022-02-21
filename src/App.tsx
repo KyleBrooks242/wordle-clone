@@ -71,7 +71,7 @@ const App = () => {
             guessArray[state.guessIndex][state.letterIndex].value = '';
             setState({...tempState})
         }
-        else if (letter >= 'a' && letter <= 'z') {
+        else if (letter >= 'a' && letter <= 'z' && letter !== 'enter') {
             if (state.letterIndex >= 0 && state.letterIndex <= WORD_LENGTH - 1) {
                 guessArray[state.guessIndex][state.letterIndex].value = letter.toLowerCase();
                 tempState.letterIndex = ( state.letterIndex + 1 > WORD_LENGTH ) ? WORD_LENGTH : state.letterIndex + 1;
@@ -108,6 +108,7 @@ const App = () => {
     console.log("Word to guess: ", wordToGuess)
 
     return (
+        <header className={'App'}>
           <Container className={'App-body'}>
               <h2>CHURDLE</h2>
               <h4>WORDLE, BUT WORSE</h4>
@@ -120,6 +121,7 @@ const App = () => {
               { generateGuessInputs() }
               <Keyboard state={state} onClick={handleOnClick}/>
           </Container>
+        </header>
     );
 }
 

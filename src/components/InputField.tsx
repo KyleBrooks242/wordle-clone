@@ -10,9 +10,7 @@ export const InputField = (props: Props) => {
 
     return(
         <Paper elevation={props.isSelected ? 3 : 0} className={`guess-paper state-${props.color}`}>
-            <div>
-                <p className={'input-field-text'}>{props.value}</p>
-            </div>
+            <p className={'input-field-text'}>{props.value}</p>
         </Paper>
     )
 }

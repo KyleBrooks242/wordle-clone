@@ -57,6 +57,7 @@ export const scoreGuessedWord = (tempState: IAppState) => {
             }
         }
         else {
+            letter.color = 3
             if (tempState.keyboard.get(letter.value) === 0) {
                 tempState.keyboard.set(letter.value, 3);
             }

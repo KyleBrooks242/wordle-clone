@@ -51,6 +51,9 @@ code {
   &.state-2 {
     background-color: $success
   }
+  &.state-3 {
+    background-color: $incorrect-guess;
+  }
 }
 
 .keyboard-container {
@@ -86,6 +89,7 @@ h4 {
 .MuiSnackbarContent-root {
   margin-right:  0 !important;
   margin-left:   0 !important;
+  background-color: $success;
 }
 
 
