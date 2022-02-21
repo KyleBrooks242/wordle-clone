@@ -1,3 +1,5 @@
+@import 'variables.scss';
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -26,22 +28,53 @@ code {
 .guess-stack {
   padding-top: 1rem;
   padding-bottom: 1rem;
+  justify-content: center;
+  &.invalid-word {
+    animation: shake 0.82s cubic-bezier(.36,.07,.19,.97) both;
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+  }
 }
 
-.guess-box {
+.guess-paper {
   width: 50px;
   height: 60px;
   border-radius: .5rem;
+  border-color: $not-guessed;
   &.state-0 {
-    background-color: #C0C0C0
+    background-color: $primary
   }
   &.state-1 {
-    background-color:  #FFAC1C
+    background-color:  $secondary
   }
   &.state-2 {
-    background-color: #93D976
+    background-color: $success
   }
 }
+
+.keyboard-container {
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+  .keyboard-stack {
+    padding-top: 0rem;
+    padding-bottom: .5rem;
+    justify-content: center;
+    .state-0 {
+      background-color : $not-guessed;
+    }
+    .state-1 {
+      background-color: $secondary;
+    }
+    .state-2 {
+      background-color: $success;
+    }
+    .state-3 {
+      background-color: $incorrect-guess;
+    }
+  }
+}
+
 
 h2 {
   margin-bottom: .25rem;
@@ -50,129 +83,26 @@ h4 {
   margin-top: 0;
 }
 
-
-//FIREWORKS
-$particles: 50;
-$width: 500;
-$height: 500;
-
-// Create the explosion...
-$box-shadow: ();
-$box-shadow2: ();
-@for $i from 0 through $particles {
-  $box-shadow: $box-shadow,
-  random($width)-$width / 2 + px
-  random($height)-$height / 1.2 + px
-  hsl(random(360), 100, 50);
-  $box-shadow2: $box-shadow2, 0 0 #fff
-}
-@mixin keyframes ($animationName) {
-  @-webkit-keyframes #{$animationName} {
-    @content;
-  }
-
-  @-moz-keyframes #{$animationName} {
-    @content;
-  }
-
-  @-o-keyframes #{$animationName} {
-    @content;
-  }
-
-  @-ms-keyframes #{$animationName} {
-    @content;
-  }
-
-  @keyframes #{$animationName} {
-    @content;
-  }
+.MuiSnackbarContent-root {
+  margin-right:  0 !important;
+  margin-left:   0 !important;
 }
 
-@mixin animation-delay ($settings) {
-  -moz-animation-delay: $settings;
-  -webkit-animation-delay: $settings;
-  -o-animation-delay: $settings;
-  -ms-animation-delay: $settings;
-  animation-delay: $settings;
-}
 
-@mixin animation-duration ($settings) {
-  -moz-animation-duration: $settings;
-  -webkit-animation-duration: $settings;
-  -o-animation-duration: $settings;
-  -ms-animation-duration: $settings;
-  animation-duration: $settings;
-}
-
-@mixin animation ($settings) {
-  -moz-animation: $settings;
-  -webkit-animation: $settings;
-  -o-animation: $settings;
-  -ms-animation: $settings;
-  animation: $settings;
-}
-
-@mixin transform ($settings) {
-  transform: $settings;
-  -moz-transform: $settings;
-  -webkit-transform: $settings;
-  -o-transform: $settings;
-  -ms-transform: $settings;
-}
-
-body {
-  margin:0;
-  padding:0;
-  background: #000;
-  overflow: hidden;
-}
-
-.pyro > .before, .pyro > .after {
-  position: absolute;
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  box-shadow: $box-shadow2;
-  @include animation((1s bang ease-out infinite backwards, 1s gravity ease-in infinite backwards, 5s position linear infinite backwards));
-}
-
-.pyro > .after {
-  @include animation-delay((1.25s, 1.25s, 1.25s));
-  @include animation-duration((1.25s, 1.25s, 6.25s));
-}
-
-@include keyframes(bang) {
-  to {
-    box-shadow:$box-shadow;
+@keyframes shake {
+  10%, 90% {
+    transform: translate3d(-1px, 0, 0);
   }
-}
 
-@include keyframes(gravity)  {
-  to {
-    @include transform(translateY(200px));
-    opacity: 0;
+  20%, 80% {
+    transform: translate3d(2px, 0, 0);
   }
-}
 
-@include keyframes(position) {
-  0%, 19.9% {
-    margin-top: 10%;
-    margin-left: 40%;
+  30%, 50%, 70% {
+    transform: translate3d(-4px, 0, 0);
   }
-  20%, 39.9% {
-    margin-top: 40%;
-    margin-left: 30%;
-  }
-  40%, 59.9% {
-    margin-top: 20%;
-    margin-left: 70%
-  }
-  60%, 79.9% {
-    margin-top: 30%;
-    margin-left: 20%;
-  }
-  80%, 99.9% {
-    margin-top: 30%;
-    margin-left: 80%;
+
+  40%, 60% {
+    transform: translate3d(4px, 0, 0);
   }
 }
