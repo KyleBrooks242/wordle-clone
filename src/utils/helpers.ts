@@ -54,6 +54,11 @@ export const scoreGuessedWord = (tempState: IAppState) => {
                     }
                     break;
                 }
+                else {
+                    if (tempState.keyboard.get(letter.value) === 0) {
+                        tempState.keyboard.set(letter.value, 3);
+                    }
+                }
             }
         }
         else {
@@ -94,7 +99,7 @@ export const getInitialKeyboardMap = (): Map<string, any> => {
     for (let i = 97; i < 123; i++) {
         map.set(String.fromCharCode(i), 0);
     }
-    map.set('backspace', 0)
+    map.set('delete', 0)
     map.set('enter', 0)
     return map;
 

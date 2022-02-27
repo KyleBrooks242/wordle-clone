@@ -66,7 +66,7 @@ const App = () => {
             }
 
         }
-        else if (letter === 'backspace') {
+        else if (letter === 'delete') {
             tempState.letterIndex = ( state.letterIndex === 0 ) ? state.letterIndex : state.letterIndex - 1;
             guessArray[state.guessIndex][state.letterIndex].value = '';
             setState({...tempState})

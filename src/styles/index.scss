@@ -15,8 +15,8 @@ code {
 }
 
 .input-field {
-  width: 50px;
-  height: 50px;
+  width: 2rem;
+  height: 2rem;
   font-weight: bold;
 }
 
@@ -26,8 +26,8 @@ code {
 }
 
 .guess-stack {
-  padding-top: 1rem;
-  padding-bottom: 1rem;
+  padding-top: .5rem;
+  padding-bottom: .5rem;
   justify-content: center;
   &.invalid-word {
     animation: shake 0.82s cubic-bezier(.36,.07,.19,.97) both;
@@ -40,10 +40,8 @@ code {
 .guess-paper {
   width: 50px;
   height: 60px;
-  border-radius: .5rem;
-  border-color: $not-guessed;
   &.state-0 {
-    background-color: $primary
+    background-color: $not-guessed
   }
   &.state-1 {
     background-color:  $secondary
