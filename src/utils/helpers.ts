@@ -1,5 +1,6 @@
 import { IWordleLetter } from '../interfaces/IWordleLetter';
 import { IAppState } from '../interfaces/IAppState';
+import { GuessScore } from './constants';
 import { ValidWords } from '../word-lists/ValidWords';
 import { WordleWords } from "../word-lists/WordleWords";
 import { WinningPhrases } from "../word-lists/WinningPhrases";
@@ -29,12 +30,10 @@ export const scoreGuessedWord = (tempState: IAppState) => {
     //Calculate all GREEN first
     guessedWord.forEach((letter: IWordleLetter, position: number) => {
         if (letter.value === wordMap[position].letter) {
-            letter.color = 2
+            letter.color = GuessScore.CORRECT
             wordMap[position].guessed = true;
             correctLetters++;
-            if (tempState.keyboard.get(letter.value) === 0) {
-                tempState.keyboard.set(letter.value, 2);
-            }
+            tempState.keyboard.set(letter.value, GuessScore.CORRECT);
         }
     })
 
@@ -43,37 +42,42 @@ export const scoreGuessedWord = (tempState: IAppState) => {
         return true;
 
     //Calculate ORANGE second
-    guessedWord.forEach((letter: IWordleLetter) => {
+    guessedWord.forEach((letter: IWordleLetter, index) => {
+        console.log(`LETTER: ${letter.value}`);
         if (actualWord.includes(letter.value)) {
+            console.log(`IS INCLUDED IN WORD`);
             for (const item of wordMap) {
+                console.log(`ITEM: ${JSON.stringify(item)}`);
                 if (item.letter === letter.value && !item.guessed) {
-                    letter.color = 1;
-                    item.guessed = true;
-                    if (tempState.keyboard.get(letter.value) === 0) {
-                        tempState.keyboard.set(letter.value, 1);
+                    console.log(`CONDITION MET!! ${item.letter}`);
+                    if (letter.color === GuessScore.NOT_GUESSED &&
+                        tempState.keyboard.get(letter.value) === GuessScore.NOT_GUESSED)
+                    {
+                        console.log(`FINAL CONDITION MET!!!`);
+                        letter.color = GuessScore.WRONG_POSITION;
+                        item.guessed = true;
+                        tempState.keyboard.set(letter.value, GuessScore.WRONG_POSITION);
                     }
+
                     break;
-                }
-                else {
-                    if (tempState.keyboard.get(letter.value) === 0) {
-                        tempState.keyboard.set(letter.value, 3);
-                    }
                 }
             }
         }
         else {
-            letter.color = 3
-            if (tempState.keyboard.get(letter.value) === 0) {
-                tempState.keyboard.set(letter.value, 3);
+            letter.color = GuessScore.INCORRECT
+            if (tempState.keyboard.get(letter.value) === GuessScore.NOT_GUESSED) {
+                tempState.keyboard.set(letter.value, GuessScore.INCORRECT);
             }
         }
     })
 
+    //Final loop. Mark everything that is not GREEN or ORANGE as INCORRECT
+    guessedWord.forEach((letter: IWordleLetter) => {
+        if (letter.color === GuessScore.NOT_GUESSED)
+            letter.color = GuessScore.INCORRECT;
+    })
+
     return false;
-}
-
-export const updateKeyboard = (word: string, tempState: IAppState) => {
-
 }
 
 export const isWordValid = (wordGuessed: string): boolean => {
