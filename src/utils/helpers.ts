@@ -50,16 +50,18 @@ export const scoreGuessedWord = (tempState: IAppState) => {
                 console.log(`ITEM: ${JSON.stringify(item)}`);
                 if (item.letter === letter.value && !item.guessed) {
                     console.log(`CONDITION MET!! ${item.letter}`);
-                    if (letter.color === GuessScore.NOT_GUESSED &&
-                        tempState.keyboard.get(letter.value) === GuessScore.NOT_GUESSED)
-                    {
+                    let shouldBreak = false;
+                    if (letter.color === GuessScore.NOT_GUESSED) {
                         console.log(`FINAL CONDITION MET!!!`);
                         letter.color = GuessScore.WRONG_POSITION;
+                        shouldBreak = true;
+                    }
+                    if (tempState.keyboard.get(letter.value) === GuessScore.NOT_GUESSED) {
                         item.guessed = true;
                         tempState.keyboard.set(letter.value, GuessScore.WRONG_POSITION);
+                        shouldBreak = true;
                     }
-
-                    break;
+                    if (shouldBreak) break;
                 }
             }
         }

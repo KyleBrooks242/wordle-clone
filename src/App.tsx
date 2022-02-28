@@ -22,6 +22,7 @@ const NUMBER_OF_GUESSES = 6;
 
 
 const wordToGuess = WordleWords[Math.floor(Math.random() * WordleWords.length)];
+
 const initialState: IAppState = {
     guessArray : [
         Array.from({length:WORD_LENGTH},()=> ({value: '', color: 0})),
