@@ -48,7 +48,7 @@ code {
 }
 
 .keyboard-grid {
-  padding-top: 2rem;
+  padding-top: 5rem;
   .keyboard-stack {
     justify-content: center;
     padding-bottom: .5rem;
@@ -76,10 +76,15 @@ code {
   }
 }
 
-h2 {
+.MuiPaper-root {
+  justify-content: center;
+
+}
+
+h1 {
   margin-bottom: .25rem;
 }
-h4 {
+h3 {
   margin-top: 0;
 }
 

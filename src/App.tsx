@@ -107,24 +107,21 @@ const App = () => {
     console.log("Word to guess: ", wordToGuess)
 
     return (
-        <div>
-            <header className={'App'}>
+        <header className={'App'}>
+            <Container>
+               <Snackbar
+                   open={state.hasWon || state.guessIndex === 6}
+                   message={ state.hasWon ? getWinningPhrase() : getLosingPhrase()}
+                   anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+               />
+                <h1>CHURDLE</h1>
+                <h3>{state.subHeader}</h3>
                 <Container>
-                   <Snackbar
-                       open={state.hasWon || state.guessIndex === 6}
-                       message={ state.hasWon ? getWinningPhrase() : getLosingPhrase()}
-                       anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-                   />
-                    <h2>CHURDLE</h2>
-                    <h4>{state.subHeader}</h4>
-
                     { generateGuessInputs() }
-
-                    <Keyboard state={state} onClick={handleOnClick} />
                 </Container>
-            </header>
-
-        </div>
+                <Keyboard state={state} onClick={handleOnClick} />
+            </Container>
+        </header>
     )
 }
 
