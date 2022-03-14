@@ -10,7 +10,7 @@ import {
     getWinningPhrase,
     getLosingPhrase,
     isWordValid,
-    getInitialKeyboardMap,
+    getInitialKeyboardMap, getSubheaderText,
 } from "./utils/helpers";
 import Container from "@mui/material/Container";
 import { Stack } from '@mui/material';
@@ -18,8 +18,6 @@ import {WordleWords} from "./word-lists/WordleWords";
 
 const WORD_LENGTH = 6;
 const NUMBER_OF_GUESSES = 6;
-
-
 
 const wordToGuess = WordleWords[Math.floor(Math.random() * WordleWords.length)];
 
@@ -33,11 +31,12 @@ const initialState: IAppState = {
         Array.from({length:WORD_LENGTH},()=> ({value: '', color: 0}))
 
     ],
-        guessIndex: 0,
-        letterIndex: 0,
-        wordToGuess: wordToGuess,
-        hasWon: false,
-        keyboard: getInitialKeyboardMap()
+    guessIndex: 0,
+    letterIndex: 0,
+    wordToGuess: wordToGuess,
+    hasWon: false,
+    keyboard: getInitialKeyboardMap(),
+    subHeader: getSubheaderText()
 }
 
 const App = () => {
@@ -109,21 +108,25 @@ const App = () => {
     console.log("Word to guess: ", wordToGuess)
 
     return (
-        <header className={'App'}>
-          <Container className={'App-body'}>
-              <h2>CHURDLE</h2>
-              <h4>WORDLE, BUT WORSE</h4>
-              <Snackbar
-                  open={state.hasWon || state.guessIndex === 6}
-                  message={ state.hasWon ? getWinningPhrase() : getLosingPhrase()}
-                  anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-              />
+        <div>
+            <header className={'App'}>
+                <Container>
+                   <Snackbar
+                       open={state.hasWon || state.guessIndex === 6}
+                       message={ state.hasWon ? getWinningPhrase() : getLosingPhrase()}
+                       anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+                   />
+                    <h2>CHURDLE</h2>
+                    <h4>{state.subHeader}</h4>
 
-              { generateGuessInputs() }
-              <Keyboard state={state} onClick={handleOnClick}/>
-          </Container>
-        </header>
-    );
+                    { generateGuessInputs() }
+
+                    <Keyboard state={state} onClick={handleOnClick} />
+                </Container>
+            </header>
+
+        </div>
+    )
 }
 
 export default App;

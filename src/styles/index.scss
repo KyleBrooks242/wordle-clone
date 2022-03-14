@@ -14,20 +14,13 @@ code {
     monospace;
 }
 
-.input-field {
-  width: 2rem;
-  height: 2rem;
-  font-weight: bold;
-}
-
 .input-field-text {
-  transform: translateY(-70%);
+  font-size: 2rem;
   color: white;
 }
 
 .guess-stack {
   padding-top: .5rem;
-  padding-bottom: .5rem;
   justify-content: center;
   &.invalid-word {
     animation: shake 0.82s cubic-bezier(.36,.07,.19,.97) both;
@@ -38,8 +31,8 @@ code {
 }
 
 .guess-paper {
-  width: 50px;
-  height: 60px;
+  width: 3rem;
+  height: 3.5rem;
   &.state-0 {
     background-color: $not-guessed
   }
@@ -54,13 +47,20 @@ code {
   }
 }
 
-.keyboard-container {
+.keyboard-grid {
   padding-top: 2rem;
-  padding-bottom: 2rem;
   .keyboard-stack {
-    padding-top: 0rem;
-    padding-bottom: .5rem;
     justify-content: center;
+    padding-bottom: .5rem;
+    MuiSvgIcon-root {
+      color: white;
+    }
+
+    .MuiButton-root {
+      height: 2rem;
+      min-width: 35px;
+      font-size: 1.5rem;
+    }
     .state-0 {
       background-color : $not-guessed;
     }
@@ -76,7 +76,6 @@ code {
   }
 }
 
-
 h2 {
   margin-bottom: .25rem;
 }
@@ -89,7 +88,6 @@ h4 {
   margin-left:   0 !important;
   background-color: $success;
 }
-
 
 @keyframes shake {
   10%, 90% {

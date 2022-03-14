@@ -3,24 +3,21 @@
 
 .App {
   text-align: center;
-  background-color: $background-color;
+  background-color: $container-background;
   min-height: 100vh;
+  max-width: 500px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  color: $text-color;
   font-size: calc(10px + 2vmin);
 }
 
 .App-body {
   text-align: center;
-  min-height: 100vh;
+  max-height: 100vh;
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
   font-size: calc(10px + 2vmin);
-  color: $text-color;
   background-color: $container-background;
   border-radius: 1rem;
 }

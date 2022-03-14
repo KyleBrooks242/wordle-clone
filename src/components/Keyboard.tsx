@@ -1,6 +1,7 @@
 import React from "react";
 import { IAppState } from '../interfaces/IAppState';
-import { Stack, Button, Container } from "@mui/material";
+import { Stack, Button } from "@mui/material";
+import { BackspaceOutlined, InputOutlined } from '@mui/icons-material';
 
 interface Props {
     state: IAppState
@@ -21,13 +22,36 @@ export const Keyboard = (props: Props) => {
             const row:Array<any> = [];
             for (let j = 0; j < keyboardRows[i].length; j++) {
                 const letter = keyboardRows[i][j];
-                row.push(<Button
-                    className={`state-${stateKeyboard.get(letter)}`}
-                    variant={'contained'}
-                    key={letter}
-                    onClick={() => { props.onClick(letter) }}
-                >{letter}
-                </Button>)
+
+                if (letter === 'delete') {
+                    row.push(<Button
+                        className={`state-${stateKeyboard.get(letter)}`}
+                        variant={'contained'}
+                        key={letter}
+                        onClick={() => { props.onClick(letter) }}
+                    >
+                        <BackspaceOutlined />
+                    </Button>)
+                }
+                else if (letter === 'enter') {
+                    row.push(<Button
+                        className={`state-${stateKeyboard.get(letter)}`}
+                        variant={'contained'}
+                        key={letter}
+                        onClick={() => { props.onClick(letter) }}
+                    >
+                        <InputOutlined />
+                    </Button>)
+                }
+                else {
+                    row.push(<Button
+                        className={`state-${stateKeyboard.get(letter)}`}
+                        variant={'contained'}
+                        key={letter}
+                        onClick={() => { props.onClick(letter) }}
+                    >{letter}
+                    </Button>)
+                }
             }
             keyboard.push(<Stack className={`keyboard-stack`} direction={'row'} spacing={.5} alignItems={'center'} key={i}>{row}</Stack>)
         }
@@ -36,8 +60,9 @@ export const Keyboard = (props: Props) => {
     }
 
     return(
-        <Container className={'keyboard-container'}>
+        <div className={'keyboard-grid'}>
             {generateKeyboard()}
-        </Container>
+        </div>
+
     )
 }

@@ -5,6 +5,7 @@ import { ValidWords } from '../word-lists/ValidWords';
 import { WordleWords } from "../word-lists/WordleWords";
 import { WinningPhrases } from "../word-lists/WinningPhrases";
 import { LosingPhrases } from '../word-lists/LosingPhrases';
+import {SubheaderPhrases} from "../word-lists/SubheaderPhrases";
 
 
 /**
@@ -96,6 +97,10 @@ export const getWinningPhrase = (): string => {
 
 export const getLosingPhrase = (): string => {
     return LosingPhrases[Math.floor(Math.random() * LosingPhrases.length)]
+}
+
+export const getSubheaderText = (): string => {
+    return SubheaderPhrases[Math.floor(Math.random() * SubheaderPhrases.length)]
 }
 
 export const getInitialKeyboardMap = (): Map<string, any> => {
