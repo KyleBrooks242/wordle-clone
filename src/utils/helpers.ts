@@ -7,6 +7,8 @@ import { WinningPhrases } from "../word-lists/WinningPhrases";
 import { LosingPhrases } from '../word-lists/LosingPhrases';
 import {SubheaderPhrases} from "../word-lists/SubheaderPhrases";
 
+//Convenience flag for debugging
+export const isDebug = false;
 
 /**
  * There may be a more efficient way to do this. Looping over the word twice - first to calculate GREEN tiles, then
@@ -18,7 +20,7 @@ import {SubheaderPhrases} from "../word-lists/SubheaderPhrases";
  * @param tempState
  */
 export const scoreGuessedWord = (tempState: IAppState) => {
-    const guessedWord = tempState.guessArray[tempState.guessIndex];
+    const userGuessedWord = tempState.guessArray[tempState.guessIndex];
     const actualWord = tempState.wordToGuess;
     const wordMap = actualWord.split('').map(letter => {
         return {
@@ -29,7 +31,7 @@ export const scoreGuessedWord = (tempState: IAppState) => {
     let correctLetters = 0;
 
     //Calculate all GREEN first
-    guessedWord.forEach((letter: IWordleLetter, position: number) => {
+    userGuessedWord.forEach((letter: IWordleLetter, position: number) => {
         if (letter.value === wordMap[position].letter) {
             letter.color = GuessScore.CORRECT
             wordMap[position].guessed = true;
@@ -43,23 +45,24 @@ export const scoreGuessedWord = (tempState: IAppState) => {
         return true;
 
     //Calculate ORANGE second
-    guessedWord.forEach((letter: IWordleLetter, index) => {
-        console.log(`LETTER: ${letter.value}`);
-        if (actualWord.includes(letter.value)) {
+    userGuessedWord.forEach((userGuessedLetter: IWordleLetter, index) => {
+        console.log(`LETTER: ${userGuessedLetter.value}`);
+        if (actualWord.includes(userGuessedLetter.value)) {
             console.log(`IS INCLUDED IN WORD`);
-            for (const item of wordMap) {
-                console.log(`ITEM: ${JSON.stringify(item)}`);
-                if (item.letter === letter.value && !item.guessed) {
-                    console.log(`CONDITION MET!! ${item.letter}`);
+            for (const wordMapItem of wordMap) {
+                console.log(`ITEM: ${JSON.stringify(wordMapItem)}`);
+                if (wordMapItem.letter === userGuessedLetter.value && !wordMapItem.guessed) {
+                    console.log(`CONDITION MET!! ${wordMapItem.letter}`);
                     let shouldBreak = false;
-                    if (letter.color === GuessScore.NOT_GUESSED) {
+                    if (userGuessedLetter.color === GuessScore.NOT_GUESSED) {
                         console.log(`FINAL CONDITION MET!!!`);
-                        letter.color = GuessScore.WRONG_POSITION;
+                        wordMapItem.guessed = true;
+                        userGuessedLetter.color = GuessScore.WRONG_POSITION;
                         shouldBreak = true;
                     }
-                    if (tempState.keyboard.get(letter.value) === GuessScore.NOT_GUESSED) {
-                        item.guessed = true;
-                        tempState.keyboard.set(letter.value, GuessScore.WRONG_POSITION);
+                    if (tempState.keyboard.get(userGuessedLetter.value) === GuessScore.NOT_GUESSED) {
+                        wordMapItem.guessed = true;
+                        tempState.keyboard.set(userGuessedLetter.value, GuessScore.WRONG_POSITION);
                         shouldBreak = true;
                     }
                     if (shouldBreak) break;
@@ -67,15 +70,15 @@ export const scoreGuessedWord = (tempState: IAppState) => {
             }
         }
         else {
-            letter.color = GuessScore.INCORRECT
-            if (tempState.keyboard.get(letter.value) === GuessScore.NOT_GUESSED) {
-                tempState.keyboard.set(letter.value, GuessScore.INCORRECT);
+            userGuessedLetter.color = GuessScore.INCORRECT
+            if (tempState.keyboard.get(userGuessedLetter.value) === GuessScore.NOT_GUESSED) {
+                tempState.keyboard.set(userGuessedLetter.value, GuessScore.INCORRECT);
             }
         }
     })
 
     //Final loop. Mark everything that is not GREEN or ORANGE as INCORRECT
-    guessedWord.forEach((letter: IWordleLetter) => {
+    userGuessedWord.forEach((letter: IWordleLetter) => {
         if (letter.color === GuessScore.NOT_GUESSED)
             letter.color = GuessScore.INCORRECT;
     })
@@ -84,10 +87,20 @@ export const scoreGuessedWord = (tempState: IAppState) => {
 }
 
 export const isWordValid = (wordGuessed: string): boolean => {
+
+    if (isDebug) {
+        console.log("***DEBUG*** isWordValid blindly returning true!!")
+        return true;
+    }
     return ValidWords.includes(wordGuessed);
 }
 
 export const getWordToGuess = (): string => {
+
+    if (isDebug) {
+        return 'treaty';
+
+    }
     return WordleWords[Math.floor(Math.random() * WordleWords.length)];
 }
 
@@ -113,5 +126,5 @@ export const getInitialKeyboardMap = (): Map<string, any> => {
     map.set('delete', 0)
     map.set('enter', 0)
     return map;
-
 }
+

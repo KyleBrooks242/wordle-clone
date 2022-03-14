@@ -9,7 +9,7 @@ interface Props {
 export const InputField = (props: Props) => {
 
     return(
-        <Paper elevation={props.isSelected ? 2 : 0} className={`guess-paper state-${props.color}`}>
+        <Paper className={`guess-paper state-${props.color}`}>
             <div className={'input-field-text'}>{props.value}</div>
         </Paper>
     )

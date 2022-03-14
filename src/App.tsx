@@ -10,16 +10,15 @@ import {
     getWinningPhrase,
     getLosingPhrase,
     isWordValid,
-    getInitialKeyboardMap, getSubheaderText,
+    getInitialKeyboardMap, getSubheaderText, getWordToGuess,
 } from "./utils/helpers";
 import Container from "@mui/material/Container";
 import { Stack } from '@mui/material';
-import {WordleWords} from "./word-lists/WordleWords";
 
 const WORD_LENGTH = 6;
 const NUMBER_OF_GUESSES = 6;
 
-const wordToGuess = WordleWords[Math.floor(Math.random() * WordleWords.length)];
+const wordToGuess = getWordToGuess();
 
 const initialState: IAppState = {
     guessArray : [
