@@ -4,3 +4,10 @@ export enum GuessScore {
     CORRECT,
     INCORRECT
 }
+
+export interface Stats {
+    boardState: Array<string>;
+    gameStatus: "NEW" | "IN_PROGRESS" | "WIN" | "LOSE";
+    numberOfGamesPlayed: number;
+
+}

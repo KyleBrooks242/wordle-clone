@@ -6,6 +6,9 @@ import { WordleWords } from "../word-lists/WordleWords";
 import { WinningPhrases } from "../word-lists/WinningPhrases";
 import { LosingPhrases } from '../word-lists/LosingPhrases';
 import {SubheaderPhrases} from "../word-lists/SubheaderPhrases";
+const dayjs = require('dayjs');
+const customParseFormat = require('dayjs/plugin/customParseFormat')
+dayjs.extend(customParseFormat)
 
 //Convenience flag for debugging
 export const isDebug = false;
@@ -94,9 +97,12 @@ export const getWordToGuess = (): string => {
 
     if (isDebug) {
         return 'treaty';
-
     }
-    return WordleWords[Math.floor(Math.random() * WordleWords.length)];
+
+    const initialDate = dayjs('2022-03-15').unix();
+    const index = Math.floor((dayjs().subtract(initialDate, 's').unix()) / 86400);
+
+    return WordleWords[index];
 }
 
 export const getWinningPhrase = (): string => {
