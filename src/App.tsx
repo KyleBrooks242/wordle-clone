@@ -5,6 +5,7 @@ import { Keyboard } from './components/Keyboard';
 import { IWordleLetter } from './interfaces/IWordleLetter';
 import { IAppState } from './interfaces/IAppState';
 import Snackbar from "@mui/material/Snackbar";
+// import SimpleDialog from "@mui/material/Dialog"
 import {
     scoreGuessedWord,
     getWinningPhrase,
@@ -111,9 +112,13 @@ const App = () => {
             <Container>
                <Snackbar
                    open={state.hasWon || state.guessIndex === 6}
-                   message={ state.hasWon ? getWinningPhrase() : getLosingPhrase()}
+                   message={ state.hasWon ? getWinningPhrase() : `${getLosingPhrase()} /\n Word: ${wordToGuess}`}
                    anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
                />
+
+                {/*<SimpleDialog*/}
+                {/*    open={state.hasWon || state.guessIndex === 6}*/}
+                {/*/>*/}
                 <h1>CHURDLE</h1>
                 <h3>{state.subHeader}</h3>
                 <Container>

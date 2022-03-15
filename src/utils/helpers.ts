@@ -46,16 +46,11 @@ export const scoreGuessedWord = (tempState: IAppState) => {
 
     //Calculate ORANGE second
     userGuessedWord.forEach((userGuessedLetter: IWordleLetter, index) => {
-        console.log(`LETTER: ${userGuessedLetter.value}`);
         if (actualWord.includes(userGuessedLetter.value)) {
-            console.log(`IS INCLUDED IN WORD`);
             for (const wordMapItem of wordMap) {
-                console.log(`ITEM: ${JSON.stringify(wordMapItem)}`);
                 if (wordMapItem.letter === userGuessedLetter.value && !wordMapItem.guessed) {
-                    console.log(`CONDITION MET!! ${wordMapItem.letter}`);
                     let shouldBreak = false;
                     if (userGuessedLetter.color === GuessScore.NOT_GUESSED) {
-                        console.log(`FINAL CONDITION MET!!!`);
                         wordMapItem.guessed = true;
                         userGuessedLetter.color = GuessScore.WRONG_POSITION;
                         shouldBreak = true;
