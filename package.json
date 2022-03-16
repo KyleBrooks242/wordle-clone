@@ -1,7 +1,7 @@
 {
-  "name": "wordle-clone",
-  "version": "0.1.0",
-  "homepage": "http://KyleBrooks242.github.io/wordle-clone",
+  "name": "churdle",
+  "version": "1.0.0",
+  "homepage": "http://KyleBrooks242.github.io/churdle",
   "private": true,
   "devDependencies": {
     "@testing-library/jest-dom": "^5.16.1",
