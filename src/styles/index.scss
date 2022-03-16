@@ -82,6 +82,11 @@ body {
 }
 
 .snackbar {
-  padding-bottom: calc(70vh) !important;
+  &.success {
+    padding-bottom: calc(70vh) !important;
+  }
+  &.failure {
+    padding-bottom: calc(30vh) !important;
+  }
 }
 

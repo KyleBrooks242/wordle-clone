@@ -111,18 +111,18 @@ const App = () => {
         <Div100vh className={'App'}>
             <Container>
                <Snackbar
-                   className={'snackbar'}
+                   className={'snackbar success'}
                    open={state.hasWon || state.guessIndex === 6}
                    message={ state.hasWon ? getWinningPhrase() : `${getLosingPhrase()} /\n Word: ${wordToGuess}`}
                    anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
                />
 
                 <Snackbar
-                    className={'snackbar'}
+                    className={'snackbar failure'}
                     open={invalidWord}
                     message={`Invalid Word!`}
                     anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-                    autoHideDuration={1500}
+                    autoHideDuration={400}
                     onClose={() => setInvalidWord(false)}
                 />
 
