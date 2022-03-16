@@ -81,12 +81,20 @@ body {
 
 }
 
-.snackbar {
-  &.success {
-    padding-bottom: calc(70vh) !important;
-  }
-  &.failure {
-    padding-bottom: calc(30vh) !important;
-  }
+.MuiSnackbar-root {
+
+    &.success {
+      padding-bottom: calc(70vh) !important;
+      .MuiSnackbarContent-root {
+        background-color:rgba($success, .95)
+      }
+    }
+    &.failure {
+      padding-bottom: calc(30vh) !important;
+    }
+}
+
+.MuiSnackbarContent-message {
+  font-weight: 700;
 }
 
