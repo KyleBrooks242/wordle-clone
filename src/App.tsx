@@ -9,10 +9,18 @@ import {
     getWinningPhrase,
     getLosingPhrase,
     isWordValid,
-    getInitialKeyboardMap, getSubheaderText, getWordToGuess,
+    getInitialKeyboardMap,
+    getSubheaderText,
+    getWordToGuess,
 } from "./utils/helpers";
 import Container from "@mui/material/Container";
-import { Stack, Snackbar, Divider, Alert } from '@mui/material';
+import {
+    Stack,
+    Snackbar,
+    Divider,
+    Dialog,
+    DialogTitle
+} from '@mui/material';
 import Div100vh from 'react-div-100vh';
 
 const WORD_LENGTH = 6;
@@ -44,6 +52,8 @@ const App = () => {
     )
 
     const [invalidWord, setInvalidWord] = useState(false);
+
+    const [showStats, setShowStats] = useState(true);
 
     const handleOnClick = (letter: string) => {
         const tempState: IAppState = state;
@@ -104,8 +114,7 @@ const App = () => {
         setInvalidWord(true);
     }
 
-
-    console.log("Word to guess: ", wordToGuess)
+    console.log("Word to guess: ", wordToGuess);
 
     return (
         <Div100vh className={'App'}>
@@ -116,6 +125,13 @@ const App = () => {
                    message={ state.hasWon ? getWinningPhrase() : `${getLosingPhrase()} /\n Word: ${wordToGuess}`}
                    anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
                />
+               <Dialog
+                   open={showStats}
+                   onBackdropClick={() => setShowStats(false)}
+               >
+                   <DialogTitle>{ state.hasWon ? getWinningPhrase() : getLosingPhrase()}</DialogTitle>
+
+               </Dialog>
 
                 <Snackbar
                     className={'snackbar failure'}
