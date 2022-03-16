@@ -6,6 +6,7 @@ export interface IAppState  {
     letterIndex: number
     wordToGuess: string
     hasWon: boolean
-    keyboard : Map<any, number>;
+    keyboard : Map<any, number>
     subHeader: string
+    showStats: boolean
 }

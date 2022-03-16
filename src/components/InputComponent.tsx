@@ -6,7 +6,7 @@ interface Props {
     color: number;
     isSelected: boolean;
 }
-export const InputField = (props: Props) => {
+export const InputComponent = (props: Props) => {
 
     return(
         <Paper className={`guess-paper state-${props.color}`}>

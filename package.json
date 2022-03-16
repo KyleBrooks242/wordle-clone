@@ -1,7 +1,7 @@
 {
   "name": "churdle",
   "version": "1.0.0",
-  "homepage": "http://KyleBrooks242.github.io/churdle",
+  "homepage": "https://KyleBrooks242.github.io/churdle",
   "private": true,
   "devDependencies": {
     "@testing-library/jest-dom": "^5.16.1",
@@ -19,6 +19,7 @@
     "@mui/material": "^5.3.0",
     "dayjs": "^1.11.0",
     "gh-pages": "^3.2.3",
+    "localStorage": "^1.0.4",
     "node-sass": "^7.0.1",
     "react": "^17.0.2",
     "react-div-100vh": "^0.7.0",

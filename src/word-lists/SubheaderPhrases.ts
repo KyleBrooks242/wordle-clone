@@ -1,8 +1,8 @@
 export const SubheaderPhrases = [
-    `WORDLE, BUT WORSE`,
-    `AMERICA'S PAST-TIME`,
-    `WORSE THAN HEROIN`,
-    `WE THINK PEOPLE PLAY IT`,
-    `SOMETIMES, YOU LOSE`,
-    `YOU JUST MIGHT HATE IT`
+    `Wordle, But Worse`,
+    `America's Past-time`,
+    `Worse Than Heroin`,
+    `We Think People Play It`,
+    `Sometimes, You Lose`,
+    `You Just Might Hate It`
 ]

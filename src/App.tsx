@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import './styles/App.scss';
-import { InputField } from './components/InputField';
-import { Keyboard } from './components/Keyboard';
+import { InputComponent } from './components/InputComponent';
+import { KeyboardComponent } from './components/KeyboardComponent';
 import { IWordleLetter } from './interfaces/IWordleLetter';
 import { IAppState } from './interfaces/IAppState';
+import { ICookieState } from './interfaces/ICookieState';
 import {
     scoreGuessedWord,
     getWinningPhrase,
@@ -19,9 +20,12 @@ import {
     Snackbar,
     Divider,
     Dialog,
-    DialogTitle
+    DialogTitle,
+    DialogContent
 } from '@mui/material';
 import Div100vh from 'react-div-100vh';
+import {GameHeaderComponent} from "./components/GameHeaderComponent";
+const LocalStorage = require('localStorage');
 
 const WORD_LENGTH = 6;
 const NUMBER_OF_GUESSES = 6;
@@ -43,7 +47,8 @@ const initialState: IAppState = {
     wordToGuess: wordToGuess,
     hasWon: false,
     keyboard: getInitialKeyboardMap(),
-    subHeader: getSubheaderText()
+    subHeader: getSubheaderText(),
+    showStats: false
 }
 
 const App = () => {
@@ -51,9 +56,43 @@ const App = () => {
         initialState
     )
 
-    const [invalidWord, setInvalidWord] = useState(false);
+    useEffect(() => {
+        let churdleCookie: ICookieState  = JSON.parse(LocalStorage.getItem('churdleCookie'));
+        if (churdleCookie) {
+            console.log("Setting Churdle cookie!");
+            console.log("Churdle Cookie: ");
+            console.log(churdleCookie);
+            setState({...state, ...churdleCookie.gameState});
+        }
+        else {
+            console.log("Creating churdle Cookie!");
+            churdleCookie = {
+                gameState: {
+                    guessArray : [
+                        Array.from({length:WORD_LENGTH},()=> ({value: '', color: 0})),
+                        Array.from({length:WORD_LENGTH},()=> ({value: '', color: 0})),
+                        Array.from({length:WORD_LENGTH},()=> ({value: '', color: 0})),
+                        Array.from({length:WORD_LENGTH},()=> ({value: '', color: 0})),
+                        Array.from({length:WORD_LENGTH},()=> ({value: '', color: 0})),
+                        Array.from({length:WORD_LENGTH},()=> ({value: '', color: 0}))
 
-    const [showStats, setShowStats] = useState(true);
+                    ],
+                    guessIndex: 0,
+                    wordToGuess: wordToGuess,
+                    hasWon: false,
+                    showStats: false
+
+                },
+                gameStatus: "NEW",
+                numberOfGamesPlayed: 0,
+                stats: [0,0,0,0,0,0]
+            }
+            LocalStorage.setItem('churdleCookie', JSON.stringify(churdleCookie))
+        }
+    }, [])
+
+
+    const [invalidWord, setInvalidWord] = useState(false);
 
     const handleOnClick = (letter: string) => {
         const tempState: IAppState = state;
@@ -93,6 +132,9 @@ const App = () => {
         }
     }
 
+    // const handleStatsClick = () => {
+    //     setState({ ...state, showStats: true });
+    // }
 
     const generateGuessInputs = () => {
         const guessList:Array<any> = [];
@@ -102,7 +144,7 @@ const App = () => {
             for (let j = 0; j < WORD_LENGTH; j++) {
                 const value = state.guessArray[i][j].value.toUpperCase();
                 const color = state.guessArray[i][j].color;
-                guessArray.push(<InputField value={value} color={color} isSelected={isSelected} key={j}/>)
+                guessArray.push(<InputComponent value={value} color={color} isSelected={isSelected} key={j}/>)
             }
             guessList.push(<Stack className={`guess-stack`} direction={'row'} spacing={.5} alignItems={'center'} key={i}>{guessArray}</Stack>)
 
@@ -111,7 +153,7 @@ const App = () => {
     }
 
     const displayInvalidWord = () => {
-        setInvalidWord(true);
+        setInvalidWord(false);
     }
 
     console.log("Word to guess: ", wordToGuess);
@@ -119,17 +161,21 @@ const App = () => {
     return (
         <Div100vh className={'App'}>
             <Container>
-               <Snackbar
-                   className={'snackbar success'}
-                   open={state.hasWon || state.guessIndex === 6}
-                   message={ state.hasWon ? getWinningPhrase() : `${getLosingPhrase()} /\n Word: ${wordToGuess}`}
-                   anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-               />
+               {/*<Snackbar*/}
+               {/*    className={'snackbar success'}*/}
+               {/*    open={state.hasWon || state.guessIndex === 6}*/}
+               {/*    message={ state.hasWon ? getWinningPhrase().toUpperCase() : `${getLosingPhrase().toUpperCase()} /\n Word: ${wordToGuess}`}*/}
+               {/*    anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}*/}
+               {/*/>*/}
                <Dialog
-                   open={showStats}
-                   onBackdropClick={() => setShowStats(false)}
+                   open={state.showStats}
+                   onBackdropClick={() => setState({...state, showStats: false})}
                >
-                   <DialogTitle>{ state.hasWon ? getWinningPhrase() : getLosingPhrase()}</DialogTitle>
+                   <DialogTitle>{ state.hasWon ? getWinningPhrase().toUpperCase() : getLosingPhrase().toUpperCase()}</DialogTitle>
+                   <DialogContent>
+                       <p>Answer: {wordToGuess.toUpperCase()}</p>
+
+                   </DialogContent>
 
                </Dialog>
 
@@ -142,13 +188,13 @@ const App = () => {
                     onClose={() => setInvalidWord(false)}
                 />
 
-                <h1>CHURDLE</h1>
-                <h4>{state.subHeader}</h4>
+                <GameHeaderComponent onClick={() => setState({...state, showStats: true})}/>
+
                 <Divider/>
                 <Container>
                     { generateGuessInputs() }
                 </Container>
-                <Keyboard state={state} onClick={handleOnClick} />
+                <KeyboardComponent state={state} onClick={handleOnClick} />
             </Container>
         </Div100vh>
     )
