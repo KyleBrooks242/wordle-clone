@@ -1,17 +1,20 @@
 @import 'variables.scss';
 
+h1 {
+  margin-top: .25rem;
+  margin-bottom: 0;
+}
+h4 {
+  margin-top: .25rem;
+  margin-bottom: .25rem;
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
-  /*-moz-osx-font-smoothing: grayscale;*/
-}
-
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
 }
 
 .input-field-text {
@@ -22,12 +25,6 @@ code {
 .guess-stack {
   padding-top: .5rem;
   justify-content: center;
-  &.invalid-word {
-    animation: shake 0.82s cubic-bezier(.36,.07,.19,.97) both;
-    transform: translate3d(0, 0, 0);
-    backface-visibility: hidden;
-    perspective: 1000px;
-  }
 }
 
 .guess-paper {
@@ -48,10 +45,13 @@ code {
 }
 
 .keyboard-grid {
-  padding-top: .5rem;
+  padding-top: 3rem;
+  display: block;
   .keyboard-stack {
     justify-content: center;
     padding-bottom: .5rem;
+    padding-left: .5rem;
+    padding-right: .5rem;
     MuiSvgIcon-root {
       color: white;
     }
@@ -81,33 +81,7 @@ code {
 
 }
 
-h1 {
-  margin-bottom: .25rem;
-}
-h3 {
-  margin-top: 0;
+.snackbar {
+  padding-bottom: calc(70vh) !important;
 }
 
-.MuiSnackbarContent-root {
-  margin-right:  0 !important;
-  margin-left:   0 !important;
-  background-color: $success;
-}
-
-@keyframes shake {
-  10%, 90% {
-    transform: translate3d(-1px, 0, 0);
-  }
-
-  20%, 80% {
-    transform: translate3d(2px, 0, 0);
-  }
-
-  30%, 50%, 70% {
-    transform: translate3d(-4px, 0, 0);
-  }
-
-  40%, 60% {
-    transform: translate3d(4px, 0, 0);
-  }
-}

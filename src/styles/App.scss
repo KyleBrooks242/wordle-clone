@@ -4,21 +4,9 @@
 .App {
   text-align: center;
   background-color: $container-background;
-  height: 100vh;
-  max-width: 500px;
   display: flex;
   flex-direction: column;
   align-items: center;
   color: $text-color;
   font-size: calc(10px + 2vmin);
-  overflow-y: hidden;
-  padding-top: 0;
-}
-
-.App-body {
-  text-align: center;
-  display: flex;
-  font-size: calc(10px + 2vmin);
-  background-color: $container-background;
-  border-radius: 1rem;
 }

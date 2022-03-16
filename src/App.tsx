@@ -1,11 +1,9 @@
-import React, {useEffect, useState} from 'react';
+import React, { useState } from 'react';
 import './styles/App.scss';
 import { InputField } from './components/InputField';
 import { Keyboard } from './components/Keyboard';
 import { IWordleLetter } from './interfaces/IWordleLetter';
 import { IAppState } from './interfaces/IAppState';
-import Snackbar from "@mui/material/Snackbar";
-// import SimpleDialog from "@mui/material/Dialog"
 import {
     scoreGuessedWord,
     getWinningPhrase,
@@ -14,7 +12,8 @@ import {
     getInitialKeyboardMap, getSubheaderText, getWordToGuess,
 } from "./utils/helpers";
 import Container from "@mui/material/Container";
-import { Stack } from '@mui/material';
+import { Stack, Snackbar, Divider, Alert } from '@mui/material';
+import Div100vh from 'react-div-100vh';
 
 const WORD_LENGTH = 6;
 const NUMBER_OF_GUESSES = 6;
@@ -40,6 +39,11 @@ const initialState: IAppState = {
 }
 
 const App = () => {
+    const [state, setState] = useState(
+        initialState
+    )
+
+    const [invalidWord, setInvalidWord] = useState(false);
 
     const handleOnClick = (letter: string) => {
         const tempState: IAppState = state;
@@ -61,7 +65,6 @@ const App = () => {
                 setState({...tempState} )
             }
             else {
-                console.log('Invalid Word!');
                 displayInvalidWord();
             }
 
@@ -98,35 +101,40 @@ const App = () => {
     }
 
     const displayInvalidWord = () => {
-        return 'TODO'
+        setInvalidWord(true);
     }
 
-    const [state, setState] = useState(
-        initialState
-    )
 
     console.log("Word to guess: ", wordToGuess)
 
     return (
-        <header className={'App'}>
+        <Div100vh className={'App'}>
             <Container>
                <Snackbar
+                   className={'snackbar'}
                    open={state.hasWon || state.guessIndex === 6}
                    message={ state.hasWon ? getWinningPhrase() : `${getLosingPhrase()} /\n Word: ${wordToGuess}`}
                    anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
                />
 
-                {/*<SimpleDialog*/}
-                {/*    open={state.hasWon || state.guessIndex === 6}*/}
-                {/*/>*/}
+                <Snackbar
+                    className={'snackbar'}
+                    open={invalidWord}
+                    message={`Invalid Word!`}
+                    anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+                    autoHideDuration={1500}
+                    onClose={() => setInvalidWord(false)}
+                />
+
                 <h1>CHURDLE</h1>
-                <h3>{state.subHeader}</h3>
+                <h4>{state.subHeader}</h4>
+                <Divider/>
                 <Container>
                     { generateGuessInputs() }
                 </Container>
                 <Keyboard state={state} onClick={handleOnClick} />
             </Container>
-        </header>
+        </Div100vh>
     )
 }
 
