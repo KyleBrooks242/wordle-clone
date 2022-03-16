@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/wordle-clone.iml" filepath="$PROJECT_DIR$/.idea/wordle-clone.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/churdle.iml" filepath="$PROJECT_DIR$/.idea/churdle.iml" />
     </modules>
   </component>
 </project>
