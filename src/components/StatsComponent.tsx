@@ -1,13 +1,12 @@
 import React from "react";
 import BarChartIcon from '@mui/icons-material/BarChart';
-import IconButton from "@mui/material/IconButton";
+import IconButton from '@mui/material/IconButton';
 
 interface Props {
     stats: any;
-    onClick: any
+    onClick: any;
 }
 export const StatsComponent = (props: Props) => {
-
     return(
         <IconButton
             size="large"

@@ -25,12 +25,15 @@ import {
 } from '@mui/material';
 import Div100vh from 'react-div-100vh';
 import {GameHeaderComponent} from "./components/GameHeaderComponent";
+import dayjs from "dayjs";
 const LocalStorage = require('localStorage');
 
 const WORD_LENGTH = 6;
 const NUMBER_OF_GUESSES = 6;
 
 const wordToGuess = getWordToGuess();
+const keyboard = getInitialKeyboardMap();
+const subheader = getSubheaderText()
 
 const initialState: IAppState = {
     guessArray : [
@@ -46,9 +49,9 @@ const initialState: IAppState = {
     letterIndex: 0,
     wordToGuess: wordToGuess,
     hasWon: false,
-    keyboard: getInitialKeyboardMap(),
-    subHeader: getSubheaderText(),
-    showStats: false
+    keyboard: keyboard,
+    subHeader: subheader,
+    showStats: false,
 }
 
 const App = () => {
@@ -57,9 +60,13 @@ const App = () => {
     )
 
     useEffect(() => {
+        console.log("running cookie effect");
         let churdleCookie: ICookieState  = JSON.parse(LocalStorage.getItem('churdleCookie'));
-        if (churdleCookie) {
-            console.log("Setting Churdle cookie!");
+        const startTime = dayjs().startOf('day').unix();
+        const endTime = dayjs().endOf('day').unix();
+        const isValidCookie = (churdleCookie?.lastPlayedTimestamp > startTime && churdleCookie?.lastPlayedTimestamp < endTime)
+        if (churdleCookie &&  isValidCookie) {
+            console.log("Setting state based on churdle cookie in localstorage");
             console.log("Churdle Cookie: ");
             console.log(churdleCookie);
             setState({...state, ...churdleCookie.gameState});
@@ -75,22 +82,37 @@ const App = () => {
                         Array.from({length:WORD_LENGTH},()=> ({value: '', color: 0})),
                         Array.from({length:WORD_LENGTH},()=> ({value: '', color: 0})),
                         Array.from({length:WORD_LENGTH},()=> ({value: '', color: 0}))
-
                     ],
                     guessIndex: 0,
                     wordToGuess: wordToGuess,
                     hasWon: false,
-                    showStats: false
-
+                    showStats: false,
+                    // keyboard: { ...state.keyboard }
                 },
                 gameStatus: "NEW",
                 numberOfGamesPlayed: 0,
-                stats: [0,0,0,0,0,0]
+                stats: [0,0,0,0,0,0],
+                lastPlayedTimestamp: dayjs().unix()
             }
             LocalStorage.setItem('churdleCookie', JSON.stringify(churdleCookie))
         }
-    }, [])
+    }, []);
 
+    const updateCookie = () => {
+        const churdleCookie: ICookieState  = JSON.parse(LocalStorage.getItem('churdleCookie'));
+
+        console.log("STATE KEYBOARD");
+        console.log(state.keyboard);
+
+        churdleCookie.gameState.guessArray = state.guessArray;
+        churdleCookie.gameState.guessIndex = state.guessIndex;
+        churdleCookie.gameState.hasWon = state.hasWon;
+        // churdleCookie.gameState.keyboard = { ...state.keyboard };
+        churdleCookie.lastPlayedTimestamp = dayjs().unix();
+        churdleCookie.gameStatus = (state.guessIndex > 0 && state.guessIndex < 6) ? 'IN_PROGRESS' : 'COMPLETE'
+
+        LocalStorage.setItem('churdleCookie', JSON.stringify(churdleCookie));
+    }
 
     const [invalidWord, setInvalidWord] = useState(false);
 
@@ -112,6 +134,7 @@ const App = () => {
                 tempState.letterIndex = 0;
                 tempState.hasWon = hasWon;
                 setState({...tempState} )
+                updateCookie();
             }
             else {
                 displayInvalidWord();
@@ -132,9 +155,9 @@ const App = () => {
         }
     }
 
-    // const handleStatsClick = () => {
-    //     setState({ ...state, showStats: true });
-    // }
+    const handleStatsClick = () => {
+        setState({ ...state, showStats: !state.showStats });
+    }
 
     const generateGuessInputs = () => {
         const guessList:Array<any> = [];
@@ -156,27 +179,32 @@ const App = () => {
         setInvalidWord(false);
     }
 
+    const getStatsDialogTitle = ():string => {
+        if (state.hasWon) {
+            return getWinningPhrase()
+        }
+        else if (!state.hasWon && state.guessIndex === 6) {
+            return getLosingPhrase()
+        }
+        else {
+            return "Stats"
+        }
+    }
+
     console.log("Word to guess: ", wordToGuess);
 
     return (
         <Div100vh className={'App'}>
             <Container>
-               {/*<Snackbar*/}
-               {/*    className={'snackbar success'}*/}
-               {/*    open={state.hasWon || state.guessIndex === 6}*/}
-               {/*    message={ state.hasWon ? getWinningPhrase().toUpperCase() : `${getLosingPhrase().toUpperCase()} /\n Word: ${wordToGuess}`}*/}
-               {/*    anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}*/}
-               {/*/>*/}
                <Dialog
                    open={state.showStats}
-                   onBackdropClick={() => setState({...state, showStats: false})}
+                   onBackdropClick={() => handleStatsClick()}
                >
-                   <DialogTitle>{ state.hasWon ? getWinningPhrase().toUpperCase() : getLosingPhrase().toUpperCase()}</DialogTitle>
+                   <DialogTitle>{getStatsDialogTitle().toUpperCase()}</DialogTitle>
                    <DialogContent>
-                       <p>Answer: {wordToGuess.toUpperCase()}</p>
+                       {state.hasWon && <p>Answer: {wordToGuess.toUpperCase()}</p>}
 
                    </DialogContent>
-
                </Dialog>
 
                 <Snackbar
@@ -188,7 +216,7 @@ const App = () => {
                     onClose={() => setInvalidWord(false)}
                 />
 
-                <GameHeaderComponent onClick={() => setState({...state, showStats: true})}/>
+                <GameHeaderComponent state={state} onStatsClick={handleStatsClick}/>
 
                 <Divider/>
                 <Container>

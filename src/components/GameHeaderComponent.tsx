@@ -1,13 +1,14 @@
 import React from "react";
-import { AppBar, Box, Toolbar, Typography, Button} from '@mui/material';
-import BarChartIcon from '@mui/icons-material/BarChart';
+import { AppBar, Box, Toolbar} from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
-import {getSubheaderText} from "../utils/helpers";
-import {StatsComponent} from "./StatsComponent";
+import { StatsComponent } from './StatsComponent';
+import { IAppState } from '../interfaces/IAppState';
+import BarChartIcon from "@mui/icons-material/BarChart";
 
 interface Props {
-    onClick: any
+    state: IAppState;
+    onStatsClick: any
 }
 
 export const  GameHeaderComponent = (props: Props) => {
@@ -26,10 +27,21 @@ export const  GameHeaderComponent = (props: Props) => {
                     </IconButton>
                     <Box sx={{ flexGrow: 1 }}>
                         <h2>Churdle</h2>
-                        <p>{getSubheaderText()}</p>
+                        <p>{props.state.subHeader}</p>
                     </Box>
 
-                    <StatsComponent stats={'blah'} onClick={props.onClick}/>
+                    <IconButton
+                        size="large"
+                        edge="start"
+                        color="inherit"
+                        aria-label="menu"
+                        sx={{ ml: 2 }}
+                        onClick={() => props.onStatsClick() }
+                    >
+                        <BarChartIcon />
+                    </IconButton>
+
+                    {/*<StatsComponent stats={'blah'} onClick={props.onStatsClick}/>*/}
                 </Toolbar>
             </AppBar>
         </Box>
