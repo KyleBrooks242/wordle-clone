@@ -204,7 +204,7 @@ const App = () => {
                >
                    <DialogTitle>{getStatsDialogTitle().toUpperCase()}</DialogTitle>
                    <DialogContent>
-                       {!state.hasWon && <p>Answer: {wordToGuess.toUpperCase()}</p>}
+                       {(!state.hasWon && state.guessIndex === 6) && <p>Answer: {wordToGuess.toUpperCase()}</p>}
                    </DialogContent>
                </Dialog>
 
