@@ -40,8 +40,6 @@ export const  GameHeaderComponent = (props: Props) => {
                     >
                         <BarChartIcon />
                     </IconButton>
-
-                    {/*<StatsComponent stats={'blah'} onClick={props.onStatsClick}/>*/}
                 </Toolbar>
             </AppBar>
         </Box>

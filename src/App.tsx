@@ -12,7 +12,7 @@ import {
     isWordValid,
     getInitialKeyboardMap,
     getSubheaderText,
-    getWordToGuess,
+    getWordToGuess, mapFromData, JSONFromMap,
 } from "./utils/helpers";
 import Container from "@mui/material/Container";
 import {
@@ -69,6 +69,7 @@ const App = () => {
             console.log("Setting state based on churdle cookie in localstorage");
             console.log("Churdle Cookie: ");
             console.log(churdleCookie);
+            churdleCookie.gameState.keyboard = mapFromData(churdleCookie.gameState.keyboard)
             setState({...state, ...churdleCookie.gameState});
         }
         else {
@@ -87,27 +88,28 @@ const App = () => {
                     wordToGuess: wordToGuess,
                     hasWon: false,
                     showStats: false,
-                    // keyboard: { ...state.keyboard }
+                    keyboard: JSONFromMap(getInitialKeyboardMap())
                 },
                 gameStatus: "NEW",
                 numberOfGamesPlayed: 0,
                 stats: [0,0,0,0,0,0],
                 lastPlayedTimestamp: dayjs().unix()
             }
+            console.log(churdleCookie);
             LocalStorage.setItem('churdleCookie', JSON.stringify(churdleCookie))
         }
     }, []);
 
-    const updateCookie = () => {
+    const updateCookie = (tempState: IAppState) => {
         const churdleCookie: ICookieState  = JSON.parse(LocalStorage.getItem('churdleCookie'));
 
         console.log("STATE KEYBOARD");
-        console.log(state.keyboard);
+        console.log(tempState.keyboard);
 
-        churdleCookie.gameState.guessArray = state.guessArray;
-        churdleCookie.gameState.guessIndex = state.guessIndex;
-        churdleCookie.gameState.hasWon = state.hasWon;
-        // churdleCookie.gameState.keyboard = { ...state.keyboard };
+        churdleCookie.gameState.guessArray = tempState.guessArray;
+        churdleCookie.gameState.guessIndex = tempState.guessIndex;
+        churdleCookie.gameState.hasWon = tempState.hasWon;
+        churdleCookie.gameState.keyboard = JSONFromMap(tempState.keyboard)
         churdleCookie.lastPlayedTimestamp = dayjs().unix();
         churdleCookie.gameStatus = (state.guessIndex > 0 && state.guessIndex < 6) ? 'IN_PROGRESS' : 'COMPLETE'
 
@@ -134,7 +136,7 @@ const App = () => {
                 tempState.letterIndex = 0;
                 tempState.hasWon = hasWon;
                 setState({...tempState} )
-                updateCookie();
+                updateCookie(tempState);
             }
             else {
                 displayInvalidWord();
@@ -197,13 +199,12 @@ const App = () => {
         <Div100vh className={'App'}>
             <Container>
                <Dialog
-                   open={state.showStats}
+                   open={state.showStats || (!state.hasWon && state.guessIndex ===6)}
                    onBackdropClick={() => handleStatsClick()}
                >
                    <DialogTitle>{getStatsDialogTitle().toUpperCase()}</DialogTitle>
                    <DialogContent>
-                       {state.hasWon && <p>Answer: {wordToGuess.toUpperCase()}</p>}
-
+                       {!state.hasWon && <p>Answer: {wordToGuess.toUpperCase()}</p>}
                    </DialogContent>
                </Dialog>
 

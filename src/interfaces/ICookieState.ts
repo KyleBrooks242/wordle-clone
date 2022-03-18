@@ -5,7 +5,7 @@ export interface ICookieState {
         hasWon: boolean;
         wordToGuess: string;
         showStats: boolean;
-        keyboard?: Map<any, number>
+        keyboard: any;
     }
     gameStatus: "NEW" | "IN_PROGRESS" | "COMPLETE";
     numberOfGamesPlayed: number;

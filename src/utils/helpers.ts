@@ -129,3 +129,11 @@ export const getInitialKeyboardMap = (): Map<string, any> => {
     return map;
 }
 
+export const JSONFromMap = (map: Map<any, number>) => {
+    return Array.from(map)
+}
+
+export const mapFromData = (JsonData: any) => {
+    return new Map(JsonData);
+}
+
