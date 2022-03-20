@@ -109,6 +109,12 @@ body {
   text-align: center;
 }
 
+.MuiTableCell-root {
+  min-width: 45px;
+  padding-left: 0 !important;
+  text-align: center !important;
+}
+
 //StatsComponent
 h4 {
   text-align: center;
