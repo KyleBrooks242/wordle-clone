@@ -22,6 +22,7 @@ import {Dialog, DialogContent, DialogTitle, Divider, Snackbar, Stack} from '@mui
 import Div100vh from 'react-div-100vh';
 import {GameHeaderComponent} from './components/GameHeaderComponent';
 import dayjs from 'dayjs';
+import {StatsComponent} from "./components/StatsComponent";
 
 const LocalStorage = require('localStorage');
 
@@ -49,12 +50,21 @@ const initialState: IAppState = {
     keyboard: keyboard,
     subHeader: subheader,
     showStats: false,
+    gameStats: {
+        currentStreak: 0,
+        longestStreak: 0,
+        gamesWon: 0,
+        gamesLost: 0,
+        guessDistribution: [0,0,0,0,0,0]
+    }
 }
 
 const App = () => {
     const [state, setState] = useState(
         initialState
     )
+
+    const [invalidWord, setInvalidWord] = useState(false);
 
     useEffect(() => {
         let churdleCookie: ICookieState  = JSON.parse(LocalStorage.getItem('churdleCookie'));
@@ -64,7 +74,7 @@ const App = () => {
         if (churdleCookie && isValidCookie) {
             churdleCookie.gameState.keyboard = mapFromData(churdleCookie.gameState.keyboard)
             //TODO NEED TO UNCOMMENT THIS BAD BOY
-            // setState({...state, ...churdleCookie.gameState});
+            setState({...state, ...churdleCookie.gameState, gameStats: {...churdleCookie.gameStats}});
         }
         else {
             churdleCookie = {
@@ -85,8 +95,6 @@ const App = () => {
     }, []);
 
 
-    const [invalidWord, setInvalidWord] = useState(false);
-
     const handleOnClick = (letter: string) => {
         const tempState: IAppState = state;
         const guessArray: Array<Array<IWordleLetter>> = tempState.guessArray;
@@ -105,8 +113,8 @@ const App = () => {
                 tempState.guessIndex += 1;
                 tempState.letterIndex = 0;
                 tempState.hasWon = hasWon;
-                setState({...tempState} )
                 updateCookie(tempState);
+                setState({...tempState} )
             }
             else {
                 displayInvalidWord();
@@ -173,6 +181,8 @@ const App = () => {
                    <DialogTitle>{getStatsDialogTitle().toUpperCase()}</DialogTitle>
                    <DialogContent>
                        {(!state.hasWon && state.guessIndex === 6) && <p>Answer: {wordToGuess.toUpperCase()}</p>}
+                       <Divider/>
+                       <StatsComponent stats={state.gameStats} />
                    </DialogContent>
                </Dialog>
 

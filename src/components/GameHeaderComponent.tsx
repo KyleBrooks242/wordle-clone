@@ -2,7 +2,6 @@ import React from "react";
 import { AppBar, Box, Toolbar} from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
-import { StatsComponent } from './StatsComponent';
 import { IAppState } from '../interfaces/IAppState';
 import BarChartIcon from "@mui/icons-material/BarChart";
 

@@ -146,8 +146,6 @@ export const updateCookie = (state: IAppState) => {
         churdleCookie.previousGameTimestamp = churdleCookie.lastPlayedTimestamp
     }
 
-
-
     LocalStorage.setItem('churdleCookie', JSON.stringify(churdleCookie));
     return;
 }
@@ -174,6 +172,7 @@ export const updateStats = (state: IAppState, cookie: ICookieState) => {
         gameStats.currentStreak = 0;
     }
 
+    state.gameStats = gameStats;
     return gameStats;
 }
 

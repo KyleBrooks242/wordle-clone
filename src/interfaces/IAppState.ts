@@ -1,4 +1,5 @@
 import { IWordleLetter } from "./IWordleLetter";
+import {IGameStats} from "./IGameStats";
 
 export interface IAppState  {
     guessArray: Array<Array<IWordleLetter>>
@@ -9,4 +10,5 @@ export interface IAppState  {
     keyboard : any //Not typed because it is either a stringified array or map
     subHeader: string
     showStats: boolean
+    gameStats: IGameStats
 }
