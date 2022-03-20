@@ -18,7 +18,7 @@ interface Props {
 export const StatsComponent = (props: Props) => {
     const { gamesWon, gamesLost, currentStreak, longestStreak, guessDistribution } = props.stats;
     const totalGames = gamesWon + gamesLost;
-    const winPercentage = (gamesWon / totalGames) * 100;
+    const winPercentage = totalGames > 0 ? (gamesWon / totalGames) * 100 : 0;
 
     const data = {
         '1': guessDistribution[0],

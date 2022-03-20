@@ -23,6 +23,7 @@ import Div100vh from 'react-div-100vh';
 import {GameHeaderComponent} from './components/GameHeaderComponent';
 import dayjs from 'dayjs';
 import {StatsComponent} from "./components/StatsComponent";
+import {TEST_COOKIE} from "./utils/constants";
 
 const LocalStorage = require('localStorage');
 
@@ -68,12 +69,13 @@ const App = () => {
 
     useEffect(() => {
         let churdleCookie: ICookieState  = JSON.parse(LocalStorage.getItem('churdleCookie'));
+        //TODO UNCOMMENT ABOVE
+        // let churdleCookie: ICookieState = JSON.parse(TEST_COOKIE);
         const startTime = dayjs().startOf('day').unix();
         const endTime = dayjs().endOf('day').unix();
         const isValidCookie = (churdleCookie?.lastPlayedTimestamp > startTime && churdleCookie?.lastPlayedTimestamp < endTime)
         if (churdleCookie && isValidCookie) {
             churdleCookie.gameState.keyboard = mapFromData(churdleCookie.gameState.keyboard)
-            //TODO NEED TO UNCOMMENT THIS BAD BOY
             setState({...state, ...churdleCookie.gameState, gameStats: {...churdleCookie.gameStats}});
         }
         else {
