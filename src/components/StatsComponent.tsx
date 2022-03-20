@@ -11,6 +11,7 @@ import {
 import { IGameStats } from '../interfaces/IGameStats';
 //@ts-ignore
 import {Graph} from 'as-basic-bar-chart';
+import {BarChartComponent} from "./BarChartComponent";
 
 interface Props {
     stats: IGameStats;
@@ -53,6 +54,7 @@ export const StatsComponent = (props: Props) => {
                 </Table>
             </TableContainer>
             <h4 className={'stats-header'}>GUESS DISTRIBUTION</h4>
+            <BarChartComponent stats={props.stats} />
 
             {/*<Graph*/}
             {/*    title='Horizontal Bars'*/}
