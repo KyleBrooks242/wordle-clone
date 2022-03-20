@@ -116,17 +116,26 @@ h4 {
   margin-top: .5rem;
 }
 
-.DataVis-graph-title {
-  display: none !important;
-}
-.DataVis-graph-horizontal {
-  padding-top: .25rem !important;
-  .DataVis-graph-horizontal-bar {
-    background-color: $incorrect-guess !important;
-    color: $container-background !important;
-  }
+.MuiTableContainer-root {
+  overflow-x: hidden !important;
 }
 
-.MuiTableCell-head {
-  text-align: center !important;
+.bar-chart-rectangle {
+  margin-top: .5rem;
+  height: 1.5rem;
+  background-color: $incorrect-guess;
+}
+
+.bar-chart-outer-label {
+  color: $text-color;
+  text-align: left;
+  transform: translateX(-15px);
+  font-weight: bold;
+}
+
+.bar-chart-inner-value {
+  color: $container-background;
+  text-align: right;
+  padding-right: .5rem;
+  transform: translateY(-100%)
 }
