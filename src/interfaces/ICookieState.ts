@@ -1,15 +1,16 @@
-export interface ICookieState {
-    gameState: {
-        guessArray: Array<any>;
-        guessIndex: number;
-        hasWon: boolean;
-        wordToGuess: string;
-        showStats: boolean;
-        keyboard: any;
-    }
-    gameStatus: "NEW" | "IN_PROGRESS" | "COMPLETE";
-    numberOfGamesPlayed: number;
-    stats: Array<number>;
-    lastPlayedTimestamp: number
+import { IAppState } from './IAppState';
+import { IGameStats } from './IGameStats';
 
+export enum GAME_STATUS {
+    NEW,
+    IN_PROGRESS,
+    COMPLETE
+}
+
+export interface ICookieState {
+    gameState: IAppState
+    gameStatus: GAME_STATUS
+    gameStats: IGameStats
+    lastPlayedTimestamp: number
+    previousGameTimestamp: number
 }

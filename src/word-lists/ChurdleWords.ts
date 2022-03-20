@@ -1,4 +1,4 @@
-export const WordleWords = [
+export const ChurdleWords = [
     'launch',
     'flight',
     'mother',

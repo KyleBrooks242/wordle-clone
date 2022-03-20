@@ -6,7 +6,7 @@ export interface IAppState  {
     letterIndex: number
     wordToGuess: string
     hasWon: boolean
-    keyboard : Map<any, number>
+    keyboard : any //Not typed because it is either a stringified array or map
     subHeader: string
     showStats: boolean
 }

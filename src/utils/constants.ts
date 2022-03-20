@@ -4,3 +4,5 @@ export enum GuessScore {
     CORRECT,
     INCORRECT
 }
+
+export const SECONDS_IN_A_DAY = 86400;

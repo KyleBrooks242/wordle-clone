@@ -1,31 +1,28 @@
 import React, {useEffect, useState} from 'react';
 import './styles/App.scss';
-import { InputComponent } from './components/InputComponent';
-import { KeyboardComponent } from './components/KeyboardComponent';
-import { IWordleLetter } from './interfaces/IWordleLetter';
-import { IAppState } from './interfaces/IAppState';
-import { ICookieState } from './interfaces/ICookieState';
+import {InputComponent} from './components/InputComponent';
+import {KeyboardComponent} from './components/KeyboardComponent';
+import {IWordleLetter} from './interfaces/IWordleLetter';
+import {IAppState} from './interfaces/IAppState';
+import {GAME_STATUS, ICookieState} from './interfaces/ICookieState';
 import {
-    scoreGuessedWord,
-    getWinningPhrase,
-    getLosingPhrase,
-    isWordValid,
     getInitialKeyboardMap,
+    getLosingPhrase,
     getSubheaderText,
-    getWordToGuess, mapFromData, JSONFromMap,
+    getWinningPhrase,
+    getWordToGuess,
+    isWordValid,
+    JSONFromMap,
+    mapFromData,
+    scoreGuessedWord,
+    updateCookie,
 } from "./utils/helpers";
-import Container from "@mui/material/Container";
-import {
-    Stack,
-    Snackbar,
-    Divider,
-    Dialog,
-    DialogTitle,
-    DialogContent
-} from '@mui/material';
+import Container from '@mui/material/Container';
+import {Dialog, DialogContent, DialogTitle, Divider, Snackbar, Stack} from '@mui/material';
 import Div100vh from 'react-div-100vh';
-import {GameHeaderComponent} from "./components/GameHeaderComponent";
-import dayjs from "dayjs";
+import {GameHeaderComponent} from './components/GameHeaderComponent';
+import dayjs from 'dayjs';
+
 const LocalStorage = require('localStorage');
 
 const WORD_LENGTH = 6;
@@ -60,61 +57,33 @@ const App = () => {
     )
 
     useEffect(() => {
-        console.log("running cookie effect");
         let churdleCookie: ICookieState  = JSON.parse(LocalStorage.getItem('churdleCookie'));
         const startTime = dayjs().startOf('day').unix();
         const endTime = dayjs().endOf('day').unix();
         const isValidCookie = (churdleCookie?.lastPlayedTimestamp > startTime && churdleCookie?.lastPlayedTimestamp < endTime)
-        if (churdleCookie &&  isValidCookie) {
-            console.log("Setting state based on churdle cookie in localstorage");
-            console.log("Churdle Cookie: ");
-            console.log(churdleCookie);
+        if (churdleCookie && isValidCookie) {
             churdleCookie.gameState.keyboard = mapFromData(churdleCookie.gameState.keyboard)
-            setState({...state, ...churdleCookie.gameState});
+            //TODO NEED TO UNCOMMENT THIS BAD BOY
+            // setState({...state, ...churdleCookie.gameState});
         }
         else {
-            console.log("Creating churdle Cookie!");
             churdleCookie = {
-                gameState: {
-                    guessArray : [
-                        Array.from({length:WORD_LENGTH},()=> ({value: '', color: 0})),
-                        Array.from({length:WORD_LENGTH},()=> ({value: '', color: 0})),
-                        Array.from({length:WORD_LENGTH},()=> ({value: '', color: 0})),
-                        Array.from({length:WORD_LENGTH},()=> ({value: '', color: 0})),
-                        Array.from({length:WORD_LENGTH},()=> ({value: '', color: 0})),
-                        Array.from({length:WORD_LENGTH},()=> ({value: '', color: 0}))
-                    ],
-                    guessIndex: 0,
-                    wordToGuess: wordToGuess,
-                    hasWon: false,
-                    showStats: false,
-                    keyboard: JSONFromMap(getInitialKeyboardMap())
+                gameState: {...state, keyboard: JSONFromMap(state.keyboard)},
+                gameStatus: GAME_STATUS.NEW,
+                gameStats: {
+                    currentStreak: 0,
+                    longestStreak: 0,
+                    gamesWon: 0,
+                    gamesLost: 0,
+                    guessDistribution: [0,0,0,0,0,0]
                 },
-                gameStatus: "NEW",
-                numberOfGamesPlayed: 0,
-                stats: [0,0,0,0,0,0],
-                lastPlayedTimestamp: dayjs().unix()
+                lastPlayedTimestamp: dayjs().unix(),
+                previousGameTimestamp: dayjs().unix()
             }
-            console.log(churdleCookie);
             LocalStorage.setItem('churdleCookie', JSON.stringify(churdleCookie))
         }
     }, []);
 
-    const updateCookie = (tempState: IAppState) => {
-        const churdleCookie: ICookieState  = JSON.parse(LocalStorage.getItem('churdleCookie'));
-
-        console.log("STATE KEYBOARD");
-        console.log(tempState.keyboard);
-
-        churdleCookie.gameState.guessArray = tempState.guessArray;
-        churdleCookie.gameState.guessIndex = tempState.guessIndex;
-        churdleCookie.gameState.hasWon = tempState.hasWon;
-        churdleCookie.gameState.keyboard = JSONFromMap(tempState.keyboard)
-        churdleCookie.lastPlayedTimestamp = dayjs().unix();
-        churdleCookie.gameStatus = (state.guessIndex > 0 && state.guessIndex < 6) ? 'IN_PROGRESS' : 'COMPLETE'
-
-        LocalStorage.setItem('churdleCookie', JSON.stringify(churdleCookie));
-    }
 
     const [invalidWord, setInvalidWord] = useState(false);
 
@@ -132,6 +101,7 @@ const App = () => {
         if (letter === 'enter' && state.letterIndex === WORD_LENGTH) {
             if (isWordValid(wordGuessed)) {
                 const hasWon = scoreGuessedWord(state);
+                tempState.showStats = hasWon;
                 tempState.guessIndex += 1;
                 tempState.letterIndex = 0;
                 tempState.hasWon = hasWon;
@@ -192,8 +162,6 @@ const App = () => {
             return "Stats"
         }
     }
-
-    console.log("Word to guess: ", wordToGuess);
 
     return (
         <Div100vh className={'App'}>
