@@ -68,9 +68,9 @@ const App = () => {
     const [invalidWord, setInvalidWord] = useState(false);
 
     useEffect(() => {
-        let churdleCookie: ICookieState  = JSON.parse(LocalStorage.getItem('churdleCookie'));
+        // let churdleCookie: ICookieState  = JSON.parse(LocalStorage.getItem('churdleCookie'));
         //TODO UNCOMMENT ABOVE
-        // let churdleCookie: ICookieState = JSON.parse(TEST_COOKIE);
+        let churdleCookie: ICookieState = JSON.parse(TEST_COOKIE);
         const startTime = dayjs().startOf('day').unix();
         const endTime = dayjs().endOf('day').unix();
         const isValidCookie = (churdleCookie?.lastPlayedTimestamp > startTime && churdleCookie?.lastPlayedTimestamp < endTime)
@@ -169,7 +169,7 @@ const App = () => {
             return getLosingPhrase()
         }
         else {
-            return "Stats"
+            return "KEEP ON CHURDLING..."
         }
     }
 
