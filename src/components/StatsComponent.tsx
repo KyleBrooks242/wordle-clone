@@ -20,14 +20,14 @@ export const StatsComponent = (props: Props) => {
     const totalGames = gamesWon + gamesLost;
     const winPercentage = totalGames > 0 ? (gamesWon / totalGames) * 100 : 0;
 
-    const data = {
-        '1': guessDistribution[0],
-        '2': guessDistribution[1],
-        '3': guessDistribution[2],
-        '4': guessDistribution[3],
-        '5': guessDistribution[4],
-        '6': guessDistribution[5],
-    }
+    // const data = {
+    //     '1': guessDistribution[0],
+    //     '2': guessDistribution[1],
+    //     '3': guessDistribution[2],
+    //     '4': guessDistribution[3],
+    //     '5': guessDistribution[4],
+    //     '6': guessDistribution[5],
+    // }
 
     return(
         <Box>
@@ -54,12 +54,13 @@ export const StatsComponent = (props: Props) => {
             </TableContainer>
             <h4 className={'stats-header'}>GUESS DISTRIBUTION</h4>
 
-            <Graph
-                title='Horizontal Bars'
-                width='50%'
-                data={data}
-                horizontal={true}
-            />
+            {/*<Graph*/}
+            {/*    title='Horizontal Bars'*/}
+            {/*    width='50%'*/}
+            {/*    data={data}*/}
+            {/*    horizontal={true}*/}
+            {/*/>*/}
+
         </Box>
     )
 }
