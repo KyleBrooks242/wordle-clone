@@ -111,7 +111,10 @@ body {
 
 .MuiTableCell-root {
   min-width: 45px;
-  padding-left: 0 !important;
+  padding-left: .5rem !important;
+  padding-right: .5rem !important;
+  padding-bottom: .25rem !important;
+  padding-top: .25rem !important;
   text-align: center !important;
 }
 
