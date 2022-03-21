@@ -7,9 +7,7 @@ import {IAppState} from './interfaces/IAppState';
 import {GAME_STATUS, ICookieState} from './interfaces/ICookieState';
 import {
     getInitialKeyboardMap,
-    getLosingPhrase,
     getSubheaderText,
-    getWinningPhrase,
     getWordToGuess,
     isWordValid,
     JSONFromMap,
@@ -18,12 +16,13 @@ import {
     updateCookie,
 } from "./utils/helpers";
 import Container from '@mui/material/Container';
-import {Dialog, DialogContent, DialogTitle, Divider, Snackbar, Stack} from '@mui/material';
+import {Divider, Snackbar, Stack} from '@mui/material';
 import Div100vh from 'react-div-100vh';
 import {GameHeaderComponent} from './components/GameHeaderComponent';
 import dayjs from 'dayjs';
-import {StatsComponent} from "./components/StatsComponent";
+
 import {TEST_COOKIE} from "./utils/constants";
+import {DialogComponent} from "./components/DialogComponent";
 
 const LocalStorage = require('localStorage');
 
@@ -139,6 +138,10 @@ const App = () => {
         setState({ ...state, showStats: !state.showStats });
     }
 
+    const handleShareClick = () => {
+        console.log("Shared!")
+    }
+
     const generateGuessInputs = () => {
         const guessList:Array<any> = [];
         for (let i = 0; i < NUMBER_OF_GUESSES; i++) {
@@ -156,35 +159,14 @@ const App = () => {
     }
 
     const displayInvalidWord = () => {
-        setInvalidWord(false);
-    }
-
-    const getStatsDialogTitle = ():string => {
-        if (state.hasWon) {
-            return getWinningPhrase()
-        }
-        else if (!state.hasWon && state.guessIndex === 6) {
-            return getLosingPhrase()
-        }
-        else {
-            return "KEEP ON CHURDLING..."
-        }
+        setInvalidWord(true);
     }
 
     return (
         <Div100vh className={'App'}>
             <Container>
-               <Dialog
-                   open={state.showStats || (!state.hasWon && state.guessIndex ===6)}
-                   onBackdropClick={() => handleStatsClick()}
-               >
-                   <DialogTitle>{getStatsDialogTitle().toUpperCase()}</DialogTitle>
-                   <DialogContent>
-                       {(!state.hasWon && state.guessIndex === 6) && <p>Answer: {wordToGuess.toUpperCase()}</p>}
-                       <Divider/>
-                       <StatsComponent stats={state.gameStats} />
-                   </DialogContent>
-               </Dialog>
+
+                <DialogComponent state={state} handleStatsClick={() => handleStatsClick()} handleShareClick={() => handleShareClick()}/>
 
                 <Snackbar
                     className={'snackbar failure'}
@@ -198,6 +180,7 @@ const App = () => {
                 <GameHeaderComponent state={state} onStatsClick={handleStatsClick}/>
 
                 <Divider/>
+
                 <Container>
                     { generateGuessInputs() }
                 </Container>

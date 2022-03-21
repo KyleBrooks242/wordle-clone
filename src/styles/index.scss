@@ -111,7 +111,10 @@ body {
 
 .MuiTableCell-root {
   min-width: 45px;
-  padding-left: 0 !important;
+  padding-left: .5rem !important;
+  padding-right: .5rem !important;
+  padding-bottom: .25rem !important;
+  padding-top: .25rem !important;
   text-align: center !important;
 }
 
@@ -144,4 +147,14 @@ h4 {
   text-align: right;
   padding-right: .5rem;
   transform: translateY(-100%)
+}
+.share-content {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  display: flex !important;
+  flex-direction: row;
+  justify-content: center;
+  .share-button {
+    background-color: $success !important;
+  }
 }
