@@ -42,16 +42,6 @@ export const DialogComponent = (props: Props) => {
             open={state.showStats || (!state.hasWon && state.guessIndex === 6)}
             onBackdropClick={() => props.handleStatsClick()}
         >
-            <IconButton
-                onClick={() => props.handleStatsClick()}
-                sx={{
-                    position: 'absolute',
-                    right: 4,
-                    top: 4,
-                }}
-            >
-                <CloseIcon />
-            </IconButton>
             <DialogTitle>{getStatsDialogTitle().toUpperCase()}</DialogTitle>
             <DialogContent>
                 {(!state.hasWon && state.guessIndex === 6) && <p>Answer: {wordToGuess.toUpperCase()}</p>}
