@@ -1,4 +1,4 @@
-import {IWordleLetter} from '../interfaces/IWordleLetter';
+import {IChurdleLetter} from '../interfaces/IChurdleLetter';
 import {IAppState} from '../interfaces/IAppState';
 import {GuessScore, SECONDS_IN_A_DAY} from './constants';
 import {ValidWords} from '../word-lists/ValidWords';
@@ -38,7 +38,7 @@ export const scoreGuessedWord = (tempState: IAppState) => {
     let correctLetters = 0;
 
     //Calculate all GREEN first
-    userGuessedWord.forEach((letter: IWordleLetter, position: number) => {
+    userGuessedWord.forEach((letter: IChurdleLetter, position: number) => {
         if (letter.value === wordMap[position].letter) {
             letter.color = GuessScore.CORRECT
             wordMap[position].guessed = true;
@@ -52,7 +52,7 @@ export const scoreGuessedWord = (tempState: IAppState) => {
         return true;
 
     //Calculate ORANGE second
-    userGuessedWord.forEach((userGuessedLetter: IWordleLetter, index) => {
+    userGuessedWord.forEach((userGuessedLetter: IChurdleLetter, index) => {
         if (actualWord.includes(userGuessedLetter.value)) {
             for (const wordMapItem of wordMap) {
                 if (wordMapItem.letter === userGuessedLetter.value && !wordMapItem.guessed) {
@@ -80,7 +80,7 @@ export const scoreGuessedWord = (tempState: IAppState) => {
     })
 
     //Final loop. Mark everything that is not GREEN or ORANGE as INCORRECT
-    userGuessedWord.forEach((letter: IWordleLetter) => {
+    userGuessedWord.forEach((letter: IChurdleLetter) => {
         if (letter.color === GuessScore.NOT_GUESSED)
             letter.color = GuessScore.INCORRECT;
     })
@@ -97,7 +97,7 @@ export const isWordValid = (wordGuessed: string): boolean => {
     return ValidWords.includes(wordGuessed);
 }
 
-export const getWordToGuess = (): string => {
+export const getWordToGuess = ():string => {
 
     if (isDebug) {
         return 'treaty';
@@ -107,6 +107,13 @@ export const getWordToGuess = (): string => {
     const index = Math.floor((dayjs().subtract(initialDate, 's').unix()) / SECONDS_IN_A_DAY);
 
     return ChurdleWords[index];
+}
+
+export const getWordToGuessIndex = () => {
+    const initialDate = dayjs('2022-03-15').unix();
+    const index = Math.floor((dayjs().subtract(initialDate, 's').unix()) / SECONDS_IN_A_DAY);
+
+    return index;
 }
 
 export const getWinningPhrase = (): string => {

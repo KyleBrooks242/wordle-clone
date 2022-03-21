@@ -2,13 +2,13 @@ import React, {useEffect, useState} from 'react';
 import './styles/App.scss';
 import {InputComponent} from './components/InputComponent';
 import {KeyboardComponent} from './components/KeyboardComponent';
-import {IWordleLetter} from './interfaces/IWordleLetter';
+import {IChurdleLetter} from './interfaces/IChurdleLetter';
 import {IAppState} from './interfaces/IAppState';
 import {GAME_STATUS, ICookieState} from './interfaces/ICookieState';
 import {
     getInitialKeyboardMap,
     getSubheaderText,
-    getWordToGuess,
+    getWordToGuess, getWordToGuessIndex,
     isWordValid,
     JSONFromMap,
     mapFromData,
@@ -20,9 +20,9 @@ import {Divider, Snackbar, Stack} from '@mui/material';
 import Div100vh from 'react-div-100vh';
 import {GameHeaderComponent} from './components/GameHeaderComponent';
 import dayjs from 'dayjs';
-
-import {TEST_COOKIE} from "./utils/constants";
+import {SQUARE_MAP, TEST_COOKIE} from "./utils/constants";
 import {DialogComponent} from "./components/DialogComponent";
+import clipboard from 'clipboardy';
 
 const LocalStorage = require('localStorage');
 
@@ -65,6 +65,7 @@ const App = () => {
     )
 
     const [invalidWord, setInvalidWord] = useState(false);
+    const [copied, setCopied] = useState(false);
 
     useEffect(() => {
         let churdleCookie: ICookieState  = JSON.parse(LocalStorage.getItem('churdleCookie'));
@@ -96,7 +97,7 @@ const App = () => {
 
     const handleOnClick = (letter: string) => {
         const tempState: IAppState = state;
-        const guessArray: Array<Array<IWordleLetter>> = tempState.guessArray;
+        const guessArray: Array<Array<IChurdleLetter>> = tempState.guessArray;
         const wordGuessed = guessArray[tempState.guessIndex].map((letter) => {
             return letter.value
         }).join('');
@@ -138,8 +139,32 @@ const App = () => {
         setState({ ...state, showStats: !state.showStats });
     }
 
-    const handleShareClick = () => {
-        console.log("Shared!")
+    const getShareTextHeader = () => {
+        const churdleNumber = getWordToGuessIndex();
+        return `Churdle #${churdleNumber} ${state.guessIndex}/6\n`
+    }
+
+    const handleShareClick = async () => {
+        const shareTextHeader = getShareTextHeader()
+
+        let data = `${shareTextHeader}`
+        let done = false;
+        for (let guesses of state.guessArray) {
+            data += '\n';
+            for (let guess of guesses) {
+                if (done) break;
+                if (guess.value === '') {
+                    done = true;
+                    break;
+                }
+                else {
+                    data += SQUARE_MAP[guess.color]
+                }
+            }
+        }
+        await clipboard.write(data);
+        setCopied(true);
+
     }
 
     const generateGuessInputs = () => {
@@ -172,9 +197,18 @@ const App = () => {
                     className={'snackbar failure'}
                     open={invalidWord}
                     message={`Invalid Word!`}
-                    anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+                    anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
                     autoHideDuration={400}
                     onClose={() => setInvalidWord(false)}
+                />
+
+                <Snackbar
+                    className={'snackbar success'}
+                    open={copied}
+                    message={`Copied to Clipboard!`}
+                    anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+                    autoHideDuration={1000}
+                    onClose={() => setCopied(false)}
                 />
 
                 <GameHeaderComponent state={state} onStatsClick={handleStatsClick}/>

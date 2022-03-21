@@ -1,7 +1,6 @@
 import React from "react";
 import {Dialog, DialogContent, DialogTitle, Divider, IconButton, Button, Box, Container} from "@mui/material";
 import ShareIcon from '@mui/icons-material/Share';
-import CloseIcon from "@mui/icons-material/Close";
 import {StatsComponent} from "./StatsComponent";
 import {getLosingPhrase, getWinningPhrase} from "../utils/helpers";
 import {IAppState} from "../interfaces/IAppState";
