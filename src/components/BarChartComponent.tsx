@@ -18,9 +18,8 @@ export const BarChartComponent = (props: Props) => {
 
         for (let i = 0; i < data.length; i++) {
             const timesWon = data[i];
-
             const style = (timesWon > 0) ? `calc(100% / ${totalGames / timesWon})` : '1.5rem';
-            console.log(style);
+
             chart.push(
                 <div className={'bar-chart-rectangle'} style={{'width': `${style}`}} key={i}>
                     <div className={'bar-chart-outer-label'}>{i + 1}</div>
