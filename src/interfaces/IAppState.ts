@@ -1,8 +1,8 @@
-import { IWordleLetter } from "./IWordleLetter";
+import { IChurdleLetter } from "./IChurdleLetter";
 import {IGameStats} from "./IGameStats";
 
 export interface IAppState  {
-    guessArray: Array<Array<IWordleLetter>>
+    guessArray: Array<Array<IChurdleLetter>>
     guessIndex: number
     letterIndex: number
     wordToGuess: string
