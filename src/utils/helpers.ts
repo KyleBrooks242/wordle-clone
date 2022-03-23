@@ -1,6 +1,6 @@
 import {IChurdleLetter} from '../interfaces/IChurdleLetter';
 import {IAppState} from '../interfaces/IAppState';
-import {GuessScore, SECONDS_IN_A_DAY} from './constants';
+import {DAY_SECTIONS, GuessScore, SECONDS_IN_A_DAY, SECONDS_PER_GAME} from './constants';
 import {ValidWords} from '../word-lists/ValidWords';
 import {ChurdleWords} from '../word-lists/ChurdleWords';
 import {WinningPhrases} from '../word-lists/WinningPhrases';
@@ -97,6 +97,11 @@ export const isWordValid = (wordGuessed: string): boolean => {
     return ValidWords.includes(wordGuessed);
 }
 
+/**
+ * The simplest way I can think to do this is set a hard 'initial date'
+ * and count up from there. To get 3 Churdles a day, we can divide a day into 3 sections and calculate
+ * an additional offset based on what the current time is when the user plays.
+ */
 export const getWordToGuess = ():string => {
 
     if (isDebug) {
@@ -105,16 +110,43 @@ export const getWordToGuess = ():string => {
 
     const initialDate = dayjs('2022-03-15').unix();
     const index = Math.floor((dayjs().subtract(initialDate, 's').unix()) / SECONDS_IN_A_DAY);
+    const offset = _calculateOffset();
 
-    return ChurdleWords[index];
+    return ChurdleWords[index + offset];
 }
 
 export const getWordToGuessIndex = () => {
     const initialDate = dayjs('2022-03-15').unix();
     const index = Math.floor((dayjs().subtract(initialDate, 's').unix()) / SECONDS_IN_A_DAY);
+    const offset = _calculateOffset();
 
-    return index;
+    return index + offset;
 }
+
+/**
+ * Takes timestamp and determines which section of the day it falls within
+ */
+export const getTimeStampRange = (forCountdown: boolean = false) => {
+    const offset = _calculateOffset();
+    let startTime, endTime;
+
+    if (offset === 0 ) {
+        startTime = dayjs().startOf('day').unix();
+        endTime = dayjs().startOf('day').add(DAY_SECTIONS.SECTION_ONE_END, 's').unix();
+    }
+    else if (offset === 1) {
+        startTime = dayjs().startOf('day').add(DAY_SECTIONS.SECTION_TWO_START, 's').unix();
+        endTime = dayjs().startOf('day').add(DAY_SECTIONS.SECTION_TWO_END, 's').unix();
+    }
+    else {
+        startTime = dayjs().startOf('day').add(DAY_SECTIONS.SECTION_THREE_START, 's').unix();
+        endTime = dayjs().endOf('day').unix();
+    }
+    console.log(dayjs(endTime * 1000).format('YYYY-MM-DD_T_HH:mm:ss'));
+
+    return forCountdown ? dayjs(endTime * 1000).valueOf() :  { startTime, endTime }
+}
+
 
 export const getWinningPhrase = (): string => {
     return WinningPhrases[Math.floor(Math.random() * WinningPhrases.length)];
@@ -157,14 +189,48 @@ export const updateCookie = (state: IAppState) => {
     return;
 }
 
-export const updateStats = (state: IAppState, cookie: ICookieState) => {
-    const gameStats: IGameStats = cookie.gameStats;
+export const refreshInvalidCookie = (cookie: ICookieState, newInitialState: IAppState) => {
+    //Update stats with existing data to correctly calculate winning streaks
+    const gameState: IAppState = cookie.gameState;
+    updateStats(cookie.gameState, cookie, true);
 
-    if (state.hasWon) {
+    gameState.guessArray= newInitialState.guessArray;
+    gameState.guessIndex = newInitialState.guessIndex;
+    gameState.letterIndex = newInitialState.letterIndex;
+    gameState.wordToGuess = newInitialState.wordToGuess;
+    gameState.hasWon = false;
+    gameState.keyboard = newInitialState.keyboard;
+    gameState.subHeader = newInitialState.subHeader;
+    gameState.winningPhrase = newInitialState.winningPhrase;
+    gameState.losingPhrase = newInitialState.losingPhrase;
+    gameState.showStats = false;
+    gameState.gameStats = cookie.gameState.gameStats
+
+    cookie.gameState = gameState;
+    cookie.gameStatus = GAME_STATUS.NEW;
+    cookie.lastPlayedTimestamp = dayjs().unix();
+    cookie.previousGameTimestamp = dayjs().unix();
+
+    return cookie;
+
+}
+
+export const updateStats = (state: IAppState, cookie: ICookieState, isRefreshCookie: boolean = false) => {
+    const gameStats: IGameStats = cookie.gameState.gameStats;
+    const timeDiff = dayjs().unix() - cookie.lastPlayedTimestamp;
+
+    //In the scenario fo a refresh cookie where the user has not played the previous game at all,
+    //we don't want to add a win or a loss. We just want to reset the streaks
+    if (isRefreshCookie && (timeDiff > (SECONDS_PER_GAME * 2)) ) {
+        gameStats.longestStreak = _calculateLongestStreak(gameStats.currentStreak, gameStats.longestStreak);
+        gameStats.currentStreak = 0;
+    }
+
+    else if (state.hasWon && (timeDiff <= SECONDS_PER_GAME) ) {
         gameStats.gamesWon += 1;
         gameStats.guessDistribution[state.guessIndex - 1] += 1;
 
-        if (cookie.lastPlayedTimestamp - cookie.previousGameTimestamp < SECONDS_IN_A_DAY) {
+        if (cookie.lastPlayedTimestamp - cookie.previousGameTimestamp <= SECONDS_PER_GAME) {
             gameStats.currentStreak += 1;
             gameStats.longestStreak = _calculateLongestStreak(gameStats.currentStreak, gameStats.longestStreak);
         }
@@ -174,7 +240,7 @@ export const updateStats = (state: IAppState, cookie: ICookieState) => {
         }
     }
     else {
-        gameStats.gamesLost += 1;
+        gameStats.gamesLost +=1;
         gameStats.longestStreak = _calculateLongestStreak(gameStats.currentStreak, gameStats.longestStreak);
         gameStats.currentStreak = 0;
     }
@@ -194,4 +260,26 @@ export const mapFromData = (JsonData: any) => {
 //Quick helper function to return the greater of the two values provided... used as a setter for longestStreak
 const _calculateLongestStreak = (currentStreak: number, longestStreak: number): number => {
     return (longestStreak >= currentStreak) ? longestStreak : currentStreak;
+}
+
+/**
+ * A day is 86400 seconds. This divides that into 3 sections and returns the section the current time
+ * falls within
+ * @private
+ */
+const _calculateOffset = () => {
+    const timeDifference = dayjs().unix() - dayjs().startOf('day').unix();
+
+    let offset;
+    if (timeDifference <= DAY_SECTIONS.SECTION_ONE_END) {
+        offset = 0;
+    }
+    else if (timeDifference >= DAY_SECTIONS.SECTION_TWO_START && timeDifference <= DAY_SECTIONS.SECTION_TWO_END) {
+        offset = 1;
+    }
+    else {
+        offset = 2;
+    }
+
+    return offset;
 }

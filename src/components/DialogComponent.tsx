@@ -2,8 +2,10 @@ import React from "react";
 import {Dialog, DialogContent, DialogTitle, Divider, IconButton, Button, Box, Container} from "@mui/material";
 import ShareIcon from '@mui/icons-material/Share';
 import {StatsComponent} from "./StatsComponent";
-import {getLosingPhrase, getWinningPhrase} from "../utils/helpers";
 import {IAppState} from "../interfaces/IAppState";
+import Countdown, {zeroPad} from 'react-countdown';
+import dayjs from "dayjs";
+import {getTimeStampRange} from "../utils/helpers";
 
 interface Props {
     state: IAppState,
@@ -12,33 +14,41 @@ interface Props {
 
 }
 
+interface RendererProps {
+    hours: number
+    minutes: number
+    seconds: number
+    completed: boolean
+    zeroPadTime: number
+}
+
 export const DialogComponent = (props: Props) => {
     const state = props.state;
     const wordToGuess = state.wordToGuess;
 
     const getStatsDialogTitle = ():string => {
         if (state.hasWon) {
-            return getWinningPhrase()
+            return state.winningPhrase;
         }
         else if (!state.hasWon && state.guessIndex === 6) {
-            return getLosingPhrase()
+            return state.losingPhrase;
         }
         else {
             return "KEEP ON CHURDLING..."
         }
     }
 
-    const shareButtonProps = {
-        url: "https://kylebrooks242.github.io/churdle/",
-        network: "Facebook",
-        text: "Give Churdle a Try!",
-        longtext:
-            "Here is where we will put your churdle score"
+    const renderer: any = (renderer: RendererProps) => {
+        if (renderer.completed) {
+            return <span>CHURDLE TIME</span>;
+        } else {
+            return <span>{zeroPad(renderer.hours)}:{zeroPad(renderer.minutes)}:{zeroPad(renderer.seconds)}</span>;
+        }
     };
 
     return (
         <Dialog
-            open={state.showStats || (!state.hasWon && state.guessIndex === 6)}
+            open={state.showStats}
             onBackdropClick={() => props.handleStatsClick()}
         >
             <DialogTitle>{getStatsDialogTitle().toUpperCase()}</DialogTitle>
@@ -48,14 +58,26 @@ export const DialogComponent = (props: Props) => {
                 <StatsComponent stats={state.gameStats} />
                 { (state.hasWon || state.guessIndex === 6) &&
                     <Container className={'share-content'}>
-                        <Button
-                            className={'share-button'}
-                            variant={'contained'}
-                            endIcon={<ShareIcon />}
-                            onClick={() => props.handleShareClick()}
-                        >
-                        Share
-                        </Button>
+                        <Box className={'churdle-timer'}>
+                            <p>Next churdle in:</p>
+                            <Countdown
+                                date={getTimeStampRange(true)}
+                                zeroPadTime={2}
+                                renderer={renderer}
+                            >
+                                <p>Hello!</p>
+                            </Countdown>
+                        </Box>
+
+                            <Button
+                                className={'share-button'}
+                                variant={'contained'}
+                                endIcon={<ShareIcon />}
+                                onClick={() => props.handleShareClick()}
+                            >
+                            Share
+                            </Button>
+
                     </Container>
                 }
             </DialogContent>

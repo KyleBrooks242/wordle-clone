@@ -6,21 +6,21 @@ import {IChurdleLetter} from './interfaces/IChurdleLetter';
 import {IAppState} from './interfaces/IAppState';
 import {GAME_STATUS, ICookieState} from './interfaces/ICookieState';
 import {
-    getInitialKeyboardMap,
-    getSubheaderText,
+    getInitialKeyboardMap, getLosingPhrase,
+    getSubheaderText, getTimeStampRange, getWinningPhrase,
     getWordToGuess, getWordToGuessIndex,
     isWordValid,
     JSONFromMap,
-    mapFromData,
+    mapFromData, refreshInvalidCookie,
     scoreGuessedWord,
-    updateCookie,
+    updateCookie
 } from "./utils/helpers";
 import Container from '@mui/material/Container';
 import {Divider, Snackbar, Stack} from '@mui/material';
 import Div100vh from 'react-div-100vh';
 import {GameHeaderComponent} from './components/GameHeaderComponent';
 import dayjs from 'dayjs';
-import {SQUARE_MAP, TEST_COOKIE} from "./utils/constants";
+import {SQUARE_MAP} from "./utils/constants";
 import {DialogComponent} from "./components/DialogComponent";
 import clipboard from 'clipboardy';
 
@@ -49,6 +49,8 @@ const initialState: IAppState = {
     hasWon: false,
     keyboard: keyboard,
     subHeader: subheader,
+    winningPhrase: getWinningPhrase(),
+    losingPhrase: getLosingPhrase(),
     showStats: false,
     gameStats: {
         currentStreak: 0,
@@ -69,31 +71,31 @@ const App = () => {
 
     useEffect(() => {
         let churdleCookie: ICookieState  = JSON.parse(LocalStorage.getItem('churdleCookie'));
-        const startTime = dayjs().startOf('day').unix();
-        const endTime = dayjs().endOf('day').unix();
-        const isValidCookie = (churdleCookie?.lastPlayedTimestamp > startTime && churdleCookie?.lastPlayedTimestamp < endTime)
-        if (churdleCookie && isValidCookie) {
+        const { startTime, endTime } = getTimeStampRange();
+        const isActiveChurdleWord = (churdleCookie?.lastPlayedTimestamp > startTime && churdleCookie?.lastPlayedTimestamp < endTime)
+        //Cookie found and not expired
+        if (churdleCookie && isActiveChurdleWord) {
             churdleCookie.gameState.keyboard = mapFromData(churdleCookie.gameState.keyboard)
-            setState({...state, ...churdleCookie.gameState, gameStats: {...churdleCookie.gameStats}});
+            setState({...state, ...churdleCookie.gameState});
         }
+        //Cookie found, but 'expired'
+        else if (churdleCookie && !isActiveChurdleWord) {
+            const refreshedCookie = refreshInvalidCookie(churdleCookie, state);
+
+            LocalStorage.setItem('churdleCookie', JSON.stringify(refreshedCookie));
+            setState({...refreshedCookie.gameState})
+        }
+        //No cookie
         else {
             churdleCookie = {
                 gameState: {...state, keyboard: JSONFromMap(state.keyboard)},
                 gameStatus: GAME_STATUS.NEW,
-                gameStats: {
-                    currentStreak: 0,
-                    longestStreak: 0,
-                    gamesWon: 0,
-                    gamesLost: 0,
-                    guessDistribution: [0,0,0,0,0,0]
-                },
                 lastPlayedTimestamp: dayjs().unix(),
                 previousGameTimestamp: dayjs().unix()
             }
             LocalStorage.setItem('churdleCookie', JSON.stringify(churdleCookie))
         }
     }, []);
-
 
     const handleOnClick = (letter: string) => {
         const tempState: IAppState = state;
@@ -109,8 +111,8 @@ const App = () => {
         if (letter === 'enter' && state.letterIndex === WORD_LENGTH) {
             if (isWordValid(wordGuessed)) {
                 const hasWon = scoreGuessedWord(state);
-                tempState.showStats = hasWon;
                 tempState.guessIndex += 1;
+                tempState.showStats = (hasWon || state.guessIndex === 6);
                 tempState.letterIndex = 0;
                 tempState.hasWon = hasWon;
                 updateCookie(tempState);
@@ -164,7 +166,6 @@ const App = () => {
         }
         await clipboard.write(data);
         setCopied(true);
-
     }
 
     const generateGuessInputs = () => {
