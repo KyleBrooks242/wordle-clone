@@ -80,7 +80,6 @@ const App = () => {
         }
         //Cookie found, but 'expired'
         else if (churdleCookie && !isActiveChurdleWord) {
-            console.log("NOT AN ACTIVE CHURDLE WORD");
             const refreshedCookie = refreshInvalidCookie(churdleCookie, state);
 
             LocalStorage.setItem('churdleCookie', JSON.stringify(refreshedCookie));

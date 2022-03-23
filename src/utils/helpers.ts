@@ -189,8 +189,6 @@ export const updateCookie = (state: IAppState) => {
 }
 
 export const refreshInvalidCookie = (cookie: ICookieState, newInitialState: IAppState) => {
-    console.log(`Refresh invalid cookie`);
-
     //Update stats with existing data to correctly calculate winning streaks
     const gameState: IAppState = cookie.gameState;
     updateStats(cookie.gameState, cookie, true);
@@ -219,7 +217,6 @@ export const refreshInvalidCookie = (cookie: ICookieState, newInitialState: IApp
 export const updateStats = (state: IAppState, cookie: ICookieState, isRefreshCookie: boolean = false) => {
     const gameStats: IGameStats = cookie.gameState.gameStats;
     const timeDiff = dayjs().unix() - cookie.lastPlayedTimestamp;
-    console.log(timeDiff);
 
     //In the scenario fo a refresh cookie where the user has not played the previous game at all,
     //we don't want to add a win or a loss. We just want to reset the streaks
