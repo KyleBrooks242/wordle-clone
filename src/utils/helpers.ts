@@ -131,17 +131,14 @@ export const getTimeStampRange = () => {
     let startTime, endTime;
 
     if (offset === 0 ) {
-        console.log('0 offset')
         startTime = dayjs().startOf('day').unix();
         endTime = dayjs().startOf('day').add(DAY_SECTIONS.SECTION_ONE_END, 's').unix();
     }
     else if (offset === 1) {
-        console.log('1 offset')
         startTime = dayjs().startOf('day').add(DAY_SECTIONS.SECTION_TWO_START, 's').unix();
         endTime = dayjs().startOf('day').add(DAY_SECTIONS.SECTION_TWO_END, 's').unix();
     }
     else {
-        console.log('2 offset')
         startTime = dayjs().startOf('day').add(DAY_SECTIONS.SECTION_THREE_START, 's').unix();
         endTime = dayjs().endOf('day').unix();
     }
@@ -174,14 +171,14 @@ export const getInitialKeyboardMap = (): Map<string, any> => {
     return map;
 }
 
-export const updateCookie = (state: IAppState, isValidCookie: boolean = true) => {
+export const updateCookie = (state: IAppState) => {
     const churdleCookie: ICookieState  = JSON.parse(LocalStorage.getItem('churdleCookie'));
 
     churdleCookie.gameState = {...state, keyboard: JSONFromMap(state.keyboard)}
     churdleCookie.gameStatus = (state.hasWon || state.guessIndex === 6) ? GAME_STATUS.COMPLETE : GAME_STATUS.IN_PROGRESS
     churdleCookie.lastPlayedTimestamp = dayjs().unix();
 
-    if (state.hasWon || state.guessIndex === 6 || !isValidCookie) {
+    if (state.hasWon || state.guessIndex === 6) {
         updateStats(state, churdleCookie)
         //Have to update timestamps after calculating stats so streaks are calculated correctly
         churdleCookie.previousGameTimestamp = churdleCookie.lastPlayedTimestamp
@@ -191,11 +188,47 @@ export const updateCookie = (state: IAppState, isValidCookie: boolean = true) =>
     return;
 }
 
-export const updateStats = (state: IAppState, cookie: ICookieState) => {
-    const gameStats: IGameStats = cookie.gameStats;
+export const refreshInvalidCookie = (cookie: ICookieState, newInitialState: IAppState) => {
+    console.log(`Refresh invalid cookie`);
 
-    if (state.hasWon) {
-        console.log("WINNING STATE!");
+    //Update stats with existing data to correctly calculate winning streaks
+    const gameState: IAppState = cookie.gameState;
+    updateStats(cookie.gameState, cookie, true);
+
+    gameState.guessArray= newInitialState.guessArray;
+    gameState.guessIndex = newInitialState.guessIndex;
+    gameState.letterIndex = newInitialState.letterIndex;
+    gameState.wordToGuess = newInitialState.wordToGuess;
+    gameState.hasWon = false;
+    gameState.keyboard = newInitialState.keyboard;
+    gameState.subHeader = newInitialState.subHeader;
+    gameState.winningPhrase = newInitialState.winningPhrase;
+    gameState.losingPhrase = newInitialState.losingPhrase;
+    gameState.showStats = false;
+    gameState.gameStats = cookie.gameState.gameStats
+
+    cookie.gameState = gameState;
+    cookie.gameStatus = GAME_STATUS.NEW;
+    cookie.lastPlayedTimestamp = dayjs().unix();
+    cookie.previousGameTimestamp = dayjs().unix();
+
+    return cookie;
+
+}
+
+export const updateStats = (state: IAppState, cookie: ICookieState, isRefreshCookie: boolean = false) => {
+    const gameStats: IGameStats = cookie.gameState.gameStats;
+    const timeDiff = dayjs().unix() - cookie.lastPlayedTimestamp;
+    console.log(timeDiff);
+
+    //In the scenario fo a refresh cookie where the user has not played the previous game at all,
+    //we don't want to add a win or a loss. We just want to reset the streaks
+    if (isRefreshCookie && (timeDiff > (SECONDS_PER_GAME * 2)) ) {
+        gameStats.longestStreak = _calculateLongestStreak(gameStats.currentStreak, gameStats.longestStreak);
+        gameStats.currentStreak = 0;
+    }
+
+    else if (state.hasWon && (timeDiff <= SECONDS_PER_GAME) ) {
         gameStats.gamesWon += 1;
         gameStats.guessDistribution[state.guessIndex - 1] += 1;
 
@@ -209,23 +242,7 @@ export const updateStats = (state: IAppState, cookie: ICookieState) => {
         }
     }
     else {
-        console.log("LOSING STATE!")
-        console.log(cookie.gameStatus)
-        console.log(`PREVIOUS WORD: ${ChurdleWords[getWordToGuessIndex() - 1]}`)
-
         gameStats.gamesLost +=1;
-
-        //Indicates the player has missed a game completely-- don't count it as a game lost
-        if (cookie.gameState.wordToGuess !== ChurdleWords[getWordToGuessIndex() - 1]) {
-            gameStats.gamesLost -= 1;
-            console.log("LOST");
-        }
-
-
-        else {
-            console.log("Off the hook this time");
-        }
-
         gameStats.longestStreak = _calculateLongestStreak(gameStats.currentStreak, gameStats.longestStreak);
         gameStats.currentStreak = 0;
     }

@@ -11,7 +11,7 @@ import {
     getWordToGuess, getWordToGuessIndex,
     isWordValid,
     JSONFromMap,
-    mapFromData,
+    mapFromData, refreshInvalidCookie,
     scoreGuessedWord,
     updateCookie
 } from "./utils/helpers";
@@ -73,25 +73,24 @@ const App = () => {
         let churdleCookie: ICookieState  = JSON.parse(LocalStorage.getItem('churdleCookie'));
         const { startTime, endTime } = getTimeStampRange();
         const isActiveChurdleWord = (churdleCookie?.lastPlayedTimestamp > startTime && churdleCookie?.lastPlayedTimestamp < endTime)
+        //Cookie found and not expired
         if (churdleCookie && isActiveChurdleWord) {
             churdleCookie.gameState.keyboard = mapFromData(churdleCookie.gameState.keyboard)
-            setState({...state, ...churdleCookie.gameState, gameStats: {...churdleCookie.gameStats}});
+            setState({...state, ...churdleCookie.gameState});
         }
+        //Cookie found, but 'expired'
         else if (churdleCookie && !isActiveChurdleWord) {
-            console.log("NOT AN ACTIVE CHURDLE WORD")
-            updateCookie(state, false);
+            console.log("NOT AN ACTIVE CHURDLE WORD");
+            const refreshedCookie = refreshInvalidCookie(churdleCookie, state);
+
+            LocalStorage.setItem('churdleCookie', JSON.stringify(refreshedCookie));
+            setState({...refreshedCookie.gameState})
         }
+        //No cookie
         else {
             churdleCookie = {
                 gameState: {...state, keyboard: JSONFromMap(state.keyboard)},
                 gameStatus: GAME_STATUS.NEW,
-                gameStats: {
-                    currentStreak: 0,
-                    longestStreak: 0,
-                    gamesWon: 0,
-                    gamesLost: 0,
-                    guessDistribution: [0,0,0,0,0,0]
-                },
                 lastPlayedTimestamp: dayjs().unix(),
                 previousGameTimestamp: dayjs().unix()
             }
@@ -105,7 +104,6 @@ const App = () => {
         const wordGuessed = guessArray[tempState.guessIndex].map((letter) => {
             return letter.value
         }).join('');
-        console.log(`HELLO: `, state.guessIndex);
 
         if (state.guessIndex === 6 || state.hasWon) {
             return;
@@ -190,8 +188,6 @@ const App = () => {
     const displayInvalidWord = () => {
         setInvalidWord(true);
     }
-
-    console.log(wordToGuess);
 
     return (
         <Div100vh className={'App'}>
