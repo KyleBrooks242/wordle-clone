@@ -126,7 +126,7 @@ export const getWordToGuessIndex = () => {
 /**
  * Takes timestamp and determines which section of the day it falls within
  */
-export const getTimeStampRange = () => {
+export const getTimeStampRange = (forCountdown: boolean = false) => {
     const offset = _calculateOffset();
     let startTime, endTime;
 
@@ -142,8 +142,9 @@ export const getTimeStampRange = () => {
         startTime = dayjs().startOf('day').add(DAY_SECTIONS.SECTION_THREE_START, 's').unix();
         endTime = dayjs().endOf('day').unix();
     }
+    console.log(dayjs(endTime * 1000).format('YYYY-MM-DD_T_HH:mm:ss'));
 
-    return { startTime, endTime }
+    return forCountdown ? dayjs(endTime * 1000).valueOf() :  { startTime, endTime }
 }
 
 

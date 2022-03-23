@@ -105,8 +105,14 @@ body {
 }
 
 //Dialog Component
+
 .MuiDialogTitle-root {
   text-align: center;
+  background-color: $container-background;
+}
+
+.MuiDialogContent-root {
+  background-color: $container-background;
 }
 
 .MuiTableCell-root {
@@ -145,7 +151,7 @@ h4 {
 .bar-chart-inner-value {
   color: $container-background;
   text-align: right;
-  padding-right: .5rem;
+  padding-right: .25rem;
   transform: translateY(-100%)
 }
 
@@ -155,14 +161,15 @@ h4 {
   padding-bottom: 1rem;
   display: flex !important;
   flex-direction: row;
+  justify-content: space-between;
+  font-weight: bold;
+  text-align: center;
 
   .churdle-timer {
-    flex-direction: column !important;
-    justify-content: start;
   }
 
   .share-button {
     background-color: $success !important;
-    justify-content: start;
+
   }
 }
