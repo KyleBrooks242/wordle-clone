@@ -1,6 +1,6 @@
 import {IChurdleLetter} from '../interfaces/IChurdleLetter';
 import {IAppState} from '../interfaces/IAppState';
-import {GuessScore, SECONDS_IN_A_DAY} from './constants';
+import {DAY_SECTIONS, GuessScore, SECONDS_IN_A_DAY, SECONDS_PER_GAME} from './constants';
 import {ValidWords} from '../word-lists/ValidWords';
 import {ChurdleWords} from '../word-lists/ChurdleWords';
 import {WinningPhrases} from '../word-lists/WinningPhrases';
@@ -97,6 +97,11 @@ export const isWordValid = (wordGuessed: string): boolean => {
     return ValidWords.includes(wordGuessed);
 }
 
+/**
+ * The simplest way I can think to do this is set a hard 'initial date'
+ * and count up from there. To get 3 Churdles a day, we can divide a day into 3 sections and calculate
+ * an additional offset based on what the current time is when the user plays.
+ */
 export const getWordToGuess = ():string => {
 
     if (isDebug) {
@@ -105,16 +110,45 @@ export const getWordToGuess = ():string => {
 
     const initialDate = dayjs('2022-03-15').unix();
     const index = Math.floor((dayjs().subtract(initialDate, 's').unix()) / SECONDS_IN_A_DAY);
+    const offset = _calculateOffset();
 
-    return ChurdleWords[index];
+    return ChurdleWords[index + offset];
 }
 
 export const getWordToGuessIndex = () => {
     const initialDate = dayjs('2022-03-15').unix();
     const index = Math.floor((dayjs().subtract(initialDate, 's').unix()) / SECONDS_IN_A_DAY);
+    const offset = _calculateOffset();
 
-    return index;
+    return index + offset;
 }
+
+/**
+ * Takes timestamp and determines which section of the day it falls within
+ */
+export const getTimeStampRange = () => {
+    const offset = _calculateOffset();
+    let startTime, endTime;
+
+    if (offset === 0 ) {
+        console.log('0 offset')
+        startTime = dayjs().startOf('day').unix();
+        endTime = dayjs().startOf('day').add(DAY_SECTIONS.SECTION_ONE_END, 's').unix();
+    }
+    else if (offset === 1) {
+        console.log('1 offset')
+        startTime = dayjs().startOf('day').add(DAY_SECTIONS.SECTION_TWO_START, 's').unix();
+        endTime = dayjs().startOf('day').add(DAY_SECTIONS.SECTION_TWO_END, 's').unix();
+    }
+    else {
+        console.log('2 offset')
+        startTime = dayjs().startOf('day').add(DAY_SECTIONS.SECTION_THREE_START, 's').unix();
+        endTime = dayjs().endOf('day').unix();
+    }
+
+    return { startTime, endTime }
+}
+
 
 export const getWinningPhrase = (): string => {
     return WinningPhrases[Math.floor(Math.random() * WinningPhrases.length)];
@@ -140,14 +174,14 @@ export const getInitialKeyboardMap = (): Map<string, any> => {
     return map;
 }
 
-export const updateCookie = (state: IAppState) => {
+export const updateCookie = (state: IAppState, isValidCookie: boolean = true) => {
     const churdleCookie: ICookieState  = JSON.parse(LocalStorage.getItem('churdleCookie'));
 
     churdleCookie.gameState = {...state, keyboard: JSONFromMap(state.keyboard)}
     churdleCookie.gameStatus = (state.hasWon || state.guessIndex === 6) ? GAME_STATUS.COMPLETE : GAME_STATUS.IN_PROGRESS
     churdleCookie.lastPlayedTimestamp = dayjs().unix();
 
-    if (state.hasWon || state.guessIndex === 6) {
+    if (state.hasWon || state.guessIndex === 6 || !isValidCookie) {
         updateStats(state, churdleCookie)
         //Have to update timestamps after calculating stats so streaks are calculated correctly
         churdleCookie.previousGameTimestamp = churdleCookie.lastPlayedTimestamp
@@ -161,10 +195,11 @@ export const updateStats = (state: IAppState, cookie: ICookieState) => {
     const gameStats: IGameStats = cookie.gameStats;
 
     if (state.hasWon) {
+        console.log("WINNING STATE!");
         gameStats.gamesWon += 1;
         gameStats.guessDistribution[state.guessIndex - 1] += 1;
 
-        if (cookie.lastPlayedTimestamp - cookie.previousGameTimestamp < SECONDS_IN_A_DAY) {
+        if (cookie.lastPlayedTimestamp - cookie.previousGameTimestamp <= SECONDS_PER_GAME) {
             gameStats.currentStreak += 1;
             gameStats.longestStreak = _calculateLongestStreak(gameStats.currentStreak, gameStats.longestStreak);
         }
@@ -174,7 +209,23 @@ export const updateStats = (state: IAppState, cookie: ICookieState) => {
         }
     }
     else {
-        gameStats.gamesLost += 1;
+        console.log("LOSING STATE!")
+        console.log(cookie.gameStatus)
+        console.log(`PREVIOUS WORD: ${ChurdleWords[getWordToGuessIndex() - 1]}`)
+
+        gameStats.gamesLost +=1;
+
+        //Indicates the player has missed a game completely-- don't count it as a game lost
+        if (cookie.gameState.wordToGuess !== ChurdleWords[getWordToGuessIndex() - 1]) {
+            gameStats.gamesLost -= 1;
+            console.log("LOST");
+        }
+
+
+        else {
+            console.log("Off the hook this time");
+        }
+
         gameStats.longestStreak = _calculateLongestStreak(gameStats.currentStreak, gameStats.longestStreak);
         gameStats.currentStreak = 0;
     }
@@ -194,4 +245,26 @@ export const mapFromData = (JsonData: any) => {
 //Quick helper function to return the greater of the two values provided... used as a setter for longestStreak
 const _calculateLongestStreak = (currentStreak: number, longestStreak: number): number => {
     return (longestStreak >= currentStreak) ? longestStreak : currentStreak;
+}
+
+/**
+ * A day is 86400 seconds. This divides that into 3 sections and returns the section the current time
+ * falls within
+ * @private
+ */
+const _calculateOffset = () => {
+    const timeDifference = dayjs().unix() - dayjs().startOf('day').unix();
+
+    let offset;
+    if (timeDifference <= DAY_SECTIONS.SECTION_ONE_END) {
+        offset = 0;
+    }
+    else if (timeDifference >= DAY_SECTIONS.SECTION_TWO_START && timeDifference <= DAY_SECTIONS.SECTION_TWO_END) {
+        offset = 1;
+    }
+    else {
+        offset = 2;
+    }
+
+    return offset;
 }

@@ -2,7 +2,6 @@ import React from "react";
 import {Dialog, DialogContent, DialogTitle, Divider, IconButton, Button, Box, Container} from "@mui/material";
 import ShareIcon from '@mui/icons-material/Share';
 import {StatsComponent} from "./StatsComponent";
-import {getLosingPhrase, getWinningPhrase} from "../utils/helpers";
 import {IAppState} from "../interfaces/IAppState";
 
 interface Props {
@@ -18,27 +17,19 @@ export const DialogComponent = (props: Props) => {
 
     const getStatsDialogTitle = ():string => {
         if (state.hasWon) {
-            return getWinningPhrase()
+            return state.winningPhrase;
         }
         else if (!state.hasWon && state.guessIndex === 6) {
-            return getLosingPhrase()
+            return state.losingPhrase;
         }
         else {
             return "KEEP ON CHURDLING..."
         }
     }
 
-    const shareButtonProps = {
-        url: "https://kylebrooks242.github.io/churdle/",
-        network: "Facebook",
-        text: "Give Churdle a Try!",
-        longtext:
-            "Here is where we will put your churdle score"
-    };
-
     return (
         <Dialog
-            open={state.showStats || (!state.hasWon && state.guessIndex === 6)}
+            open={state.showStats}
             onBackdropClick={() => props.handleStatsClick()}
         >
             <DialogTitle>{getStatsDialogTitle().toUpperCase()}</DialogTitle>
@@ -48,14 +39,20 @@ export const DialogComponent = (props: Props) => {
                 <StatsComponent stats={state.gameStats} />
                 { (state.hasWon || state.guessIndex === 6) &&
                     <Container className={'share-content'}>
-                        <Button
-                            className={'share-button'}
-                            variant={'contained'}
-                            endIcon={<ShareIcon />}
-                            onClick={() => props.handleShareClick()}
-                        >
-                        Share
-                        </Button>
+                        <Box className={'churdle-timer'}>
+                            <p>Next churdle in...</p>
+                            <p>02:15</p>
+                        </Box>
+                        <Box>
+                            <Button
+                                className={'share-button'}
+                                variant={'contained'}
+                                endIcon={<ShareIcon />}
+                                onClick={() => props.handleShareClick()}
+                            >
+                            Share
+                            </Button>
+                        </Box>
                     </Container>
                 }
             </DialogContent>

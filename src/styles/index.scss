@@ -148,13 +148,21 @@ h4 {
   padding-right: .5rem;
   transform: translateY(-100%)
 }
+
+
 .share-content {
   padding-top: 1rem;
   padding-bottom: 1rem;
   display: flex !important;
   flex-direction: row;
-  justify-content: center;
+
+  .churdle-timer {
+    flex-direction: column !important;
+    justify-content: start;
+  }
+
   .share-button {
     background-color: $success !important;
+    justify-content: start;
   }
 }
