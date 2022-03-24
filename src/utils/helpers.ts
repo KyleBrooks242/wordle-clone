@@ -143,7 +143,6 @@ export const getTimeStampRange = (forCountdown: boolean = false) => {
         startTime = dayjs().startOf('day').add(DAY_SECTIONS.SECTION_THREE_START, 's').unix();
         endTime = dayjs().endOf('day').unix();
     }
-    console.log(dayjs(endTime * 1000).format('YYYY-MM-DD_T_HH:mm:ss'));
 
     return forCountdown ? dayjs(endTime * 1000).valueOf() :  { startTime, endTime }
 }
@@ -168,8 +167,8 @@ export const getInitialKeyboardMap = (): Map<string, any> => {
     for (let i = 97; i < 123; i++) {
         map.set(String.fromCharCode(i), 0);
     }
-    map.set('delete', 0)
-    map.set('enter', 0)
+    map.set('Backspace', 0)
+    map.set('Enter', 0)
     return map;
 }
 

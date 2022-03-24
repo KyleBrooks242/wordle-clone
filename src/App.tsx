@@ -97,7 +97,16 @@ const App = () => {
         }
     }, []);
 
-    const handleOnClick = (letter: string) => {
+    // useEffect(() => {
+    //     console.log("RUNNING THIS CODE");
+    //     window.addEventListener('keydown', (event) => {
+    //         console.log(`LetterIndex: ${state.letterIndex}`);
+    //         console.log(`GuessIndex: ${state.guessIndex}`)
+    //         handleOnClick(event.key)
+    //     });
+    // }, []);
+
+    const handleOnClick = (keyPressed: string) => {
         const tempState: IAppState = state;
         const guessArray: Array<Array<IChurdleLetter>> = tempState.guessArray;
         const wordGuessed = guessArray[tempState.guessIndex].map((letter) => {
@@ -108,7 +117,7 @@ const App = () => {
             return;
         }
 
-        if (letter === 'enter' && state.letterIndex === WORD_LENGTH) {
+        if (keyPressed === 'Enter' && state.letterIndex === WORD_LENGTH) {
             if (isWordValid(wordGuessed)) {
                 const hasWon = scoreGuessedWord(state);
                 tempState.guessIndex += 1;
@@ -123,14 +132,14 @@ const App = () => {
             }
 
         }
-        else if (letter === 'delete') {
+        else if (keyPressed === 'Backspace') {
             tempState.letterIndex = ( state.letterIndex === 0 ) ? state.letterIndex : state.letterIndex - 1;
             guessArray[state.guessIndex][state.letterIndex].value = '';
             setState({...tempState})
         }
-        else if (letter >= 'a' && letter <= 'z' && letter !== 'enter') {
+        else if (keyPressed >= 'a' && keyPressed <= 'z' && keyPressed !== 'Enter') {
             if (state.letterIndex >= 0 && state.letterIndex <= WORD_LENGTH - 1) {
-                guessArray[state.guessIndex][state.letterIndex].value = letter.toLowerCase();
+                guessArray[state.guessIndex][state.letterIndex].value = keyPressed.toLowerCase();
                 tempState.letterIndex = ( state.letterIndex + 1 > WORD_LENGTH ) ? WORD_LENGTH : state.letterIndex + 1;
                 setState({...tempState});
             }

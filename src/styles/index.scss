@@ -88,15 +88,14 @@ body {
 }
 
 .MuiSnackbar-root {
-
     &.success {
-      padding-bottom: calc(70vh) !important;
+      padding-top: calc(20vh) !important;
       .MuiSnackbarContent-root {
         background-color:rgba($success, .95)
       }
     }
     &.failure {
-      padding-bottom: calc(30vh) !important;
+      padding-top: calc(30vh) !important;
     }
 }
 
