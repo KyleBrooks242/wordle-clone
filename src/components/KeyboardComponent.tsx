@@ -11,7 +11,7 @@ interface Props {
 const keyboardRows = [
     ['q','w','e','r','t','y','u','i','o','p'],
     ['a','s','d','f','g','h','j','k','l'],
-    ['enter','z','x','c','v','b','n','m','delete']
+    ['Enter','z','x','c','v','b','n','m','Backspace']
 ]
 export const KeyboardComponent = (props: Props) => {
 
@@ -23,7 +23,7 @@ export const KeyboardComponent = (props: Props) => {
             for (let j = 0; j < keyboardRows[i].length; j++) {
                 const letter = keyboardRows[i][j];
 
-                if (letter === 'delete') {
+                if (letter === 'Backspace') {
                     row.push(<Button
                         className={`state-${stateKeyboard.get(letter)}`}
                         variant={'contained'}
@@ -33,7 +33,7 @@ export const KeyboardComponent = (props: Props) => {
                         <BackspaceOutlined />
                     </Button>)
                 }
-                else if (letter === 'enter') {
+                else if (letter === 'Enter') {
                     row.push(<Button
                         className={`state-${stateKeyboard.get(letter)}`}
                         variant={'contained'}
