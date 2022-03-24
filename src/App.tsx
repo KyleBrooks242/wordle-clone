@@ -164,6 +164,8 @@ const App = () => {
                 }
             }
         }
+
+        data += `\n\nkylebrooks242.github.io/churdle`
         await clipboard.write(data);
         setCopied(true);
     }

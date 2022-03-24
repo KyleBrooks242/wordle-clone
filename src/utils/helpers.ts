@@ -1,6 +1,6 @@
 import {IChurdleLetter} from '../interfaces/IChurdleLetter';
 import {IAppState} from '../interfaces/IAppState';
-import {DAY_SECTIONS, GuessScore, SECONDS_IN_A_DAY, SECONDS_PER_GAME} from './constants';
+import {DAY_SECTIONS, GuessScore, SECONDS_IN_A_DAY, SECONDS_PER_GAME, SQUARE_MAP} from './constants';
 import {ValidWords} from '../word-lists/ValidWords';
 import {ChurdleWords} from '../word-lists/ChurdleWords';
 import {WinningPhrases} from '../word-lists/WinningPhrases';
@@ -8,6 +8,7 @@ import {LosingPhrases} from '../word-lists/LosingPhrases';
 import {SubheaderPhrases} from '../word-lists/SubheaderPhrases';
 import {GAME_STATUS, ICookieState} from '../interfaces/ICookieState';
 import {IGameStats} from '../interfaces/IGameStats';
+import clipboard from "clipboardy";
 
 const LocalStorage = require('localStorage');
 const dayjs = require('dayjs');
