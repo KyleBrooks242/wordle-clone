@@ -4,12 +4,11 @@ import ShareIcon from '@mui/icons-material/Share';
 import {StatsComponent} from "./StatsComponent";
 import {IAppState} from "../interfaces/IAppState";
 import Countdown, {zeroPad} from 'react-countdown';
-import dayjs from "dayjs";
 import {getTimeStampRange} from "../utils/helpers";
 
 interface Props {
     state: IAppState,
-    handleStatsClick: any,
+    onCloseClick: any,
     handleShareClick: any,
 
 }
@@ -22,7 +21,7 @@ interface RendererProps {
     zeroPadTime: number
 }
 
-export const DialogComponent = (props: Props) => {
+export const StatsDialogComponent = (props: Props) => {
     const state = props.state;
     const wordToGuess = state.wordToGuess;
 
@@ -49,7 +48,7 @@ export const DialogComponent = (props: Props) => {
     return (
         <Dialog
             open={state.showStats}
-            onBackdropClick={() => props.handleStatsClick()}
+            onBackdropClick={() => props.onCloseClick()}
         >
             <DialogTitle>{getStatsDialogTitle().toUpperCase()}</DialogTitle>
             <DialogContent>
