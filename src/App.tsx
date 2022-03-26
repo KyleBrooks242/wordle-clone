@@ -21,8 +21,10 @@ import Div100vh from 'react-div-100vh';
 import {GameHeaderComponent} from './components/GameHeaderComponent';
 import dayjs from 'dayjs';
 import {SQUARE_MAP} from "./utils/constants";
-import {DialogComponent} from "./components/DialogComponent";
+import {StatsDialogComponent} from "./components/StatsDialogComponent";
 import clipboard from 'clipboardy';
+import {SettingsDialogComponent} from "./components/SettingsDialogComponent";
+import {HelpDialogComponent} from "./components/HelpDialogComponent";
 
 const LocalStorage = require('localStorage');
 
@@ -68,6 +70,8 @@ const App = () => {
 
     const [invalidWord, setInvalidWord] = useState(false);
     const [copied, setCopied] = useState(false);
+    const [showHelp, setShowHelp] = useState(false);
+    const [showSettings, setShowSettings] = useState(false);
 
     useEffect(() => {
         let churdleCookie: ICookieState  = JSON.parse(LocalStorage.getItem('churdleCookie'));
@@ -146,8 +150,17 @@ const App = () => {
         }
     }
 
-    const handleStatsClick = () => {
-        setState({ ...state, showStats: !state.showStats });
+    const handleHeaderButtonClicked = (button: string) => {
+
+        if (button === 'stats') {
+            setState({ ...state, showStats: !state.showStats });
+        }
+        else if (button === 'help') {
+            setShowHelp(!showHelp)
+        }
+        else if (button === 'settings') {
+            setShowSettings(!showSettings)
+        }
     }
 
     const getShareTextHeader = () => {
@@ -203,7 +216,9 @@ const App = () => {
         <Div100vh className={'App'}>
             <Container>
 
-                <DialogComponent state={state} handleStatsClick={() => handleStatsClick()} handleShareClick={() => handleShareClick()}/>
+                <StatsDialogComponent state={state} onCloseClick={() => handleHeaderButtonClicked('stats')} handleShareClick={() => handleShareClick()}/>
+                <SettingsDialogComponent isOpen={showSettings} onCloseClick={() => handleHeaderButtonClicked('settings')}/>
+                <HelpDialogComponent isOpen={showHelp} onCloseClick={() => handleHeaderButtonClicked('help')} />
 
                 <Snackbar
                     className={'snackbar failure'}
@@ -223,7 +238,7 @@ const App = () => {
                     onClose={() => setCopied(false)}
                 />
 
-                <GameHeaderComponent state={state} onStatsClick={handleStatsClick}/>
+                <GameHeaderComponent state={state} onButtonClick={(button: string) => handleHeaderButtonClicked(button)}/>
 
                 <Divider/>
 

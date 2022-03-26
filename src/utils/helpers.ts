@@ -124,9 +124,6 @@ export const getWordToGuessIndex = () => {
     return index + offset;
 }
 
-/**
- * Takes timestamp and determines which section of the day it falls within
- */
 export const getTimeStampRange = (forCountdown: boolean = false) => {
     const offset = _calculateOffset();
     let startTime, endTime;

@@ -4,10 +4,12 @@ import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import { IAppState } from '../interfaces/IAppState';
 import BarChartIcon from "@mui/icons-material/BarChart";
+import HelpIcon from '@mui/icons-material/Help';
+import SettingsIcon from '@mui/icons-material/Settings';
 
 interface Props {
     state: IAppState;
-    onStatsClick: any
+    onButtonClick: any
 }
 
 export const  GameHeaderComponent = (props: Props) => {
@@ -21,8 +23,9 @@ export const  GameHeaderComponent = (props: Props) => {
                         color="inherit"
                         aria-label="menu"
                         sx={{ mr: 2 }}
+                        onClick={() => props.onButtonClick('help') }
                     >
-                        <MenuIcon />
+                        <HelpIcon />
                     </IconButton>
                     <Box sx={{ flexGrow: 1 }}>
                         <h2>Churdle</h2>
@@ -33,11 +36,22 @@ export const  GameHeaderComponent = (props: Props) => {
                         size="large"
                         edge="start"
                         color="inherit"
-                        aria-label="menu"
+                        aria-label="stats"
                         sx={{ ml: 2 }}
-                        onClick={() => props.onStatsClick() }
+                        onClick={() => props.onButtonClick('stats') }
                     >
                         <BarChartIcon />
+                    </IconButton>
+
+                    <IconButton
+                        size="large"
+                        edge="start"
+                        color="inherit"
+                        aria-label="settings"
+                        sx={{ ml: 2 }}
+                        onClick={() => props.onButtonClick('settings') }
+                    >
+                        <SettingsIcon />
                     </IconButton>
                 </Toolbar>
             </AppBar>

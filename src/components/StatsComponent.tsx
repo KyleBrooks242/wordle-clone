@@ -9,8 +9,6 @@ import {
     TableCell,
 } from '@mui/material';
 import { IGameStats } from '../interfaces/IGameStats';
-//@ts-ignore
-import {Graph} from 'as-basic-bar-chart';
 import {BarChartComponent} from "./BarChartComponent";
 
 interface Props {
@@ -37,7 +35,7 @@ export const StatsComponent = (props: Props) => {
                     <TableBody>
                         <TableRow>
                             <TableCell>{totalGames}</TableCell>
-                            <TableCell>{winPercentage}</TableCell>
+                            <TableCell>{winPercentage.toFixed(1)}</TableCell>
                             <TableCell>{currentStreak}</TableCell>
                             <TableCell>{longestStreak}</TableCell>
                         </TableRow>
