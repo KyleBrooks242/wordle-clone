@@ -1,6 +1,14 @@
 import {IChurdleLetter} from '../interfaces/IChurdleLetter';
 import {IAppState} from '../interfaces/IAppState';
-import {DAY_SECTIONS, GuessScore, SECONDS_IN_A_DAY, SECONDS_PER_GAME, SQUARE_MAP} from './constants';
+import {
+    DAY_SECTIONS,
+    DEFAULT_ANIMATION_OPTIONS,
+    GuessScore,
+    SECONDS_IN_A_DAY,
+    SECONDS_PER_GAME,
+    SQUARE_MAP,
+    WORD_LENGTH
+} from './constants';
 import {ValidWords} from '../word-lists/ValidWords';
 import {ChurdleWords} from '../word-lists/ChurdleWords';
 import {WinningPhrases} from '../word-lists/WinningPhrases';
@@ -8,7 +16,8 @@ import {LosingPhrases} from '../word-lists/LosingPhrases';
 import {SubheaderPhrases} from '../word-lists/SubheaderPhrases';
 import {GAME_STATUS, ICookieState} from '../interfaces/ICookieState';
 import {IGameStats} from '../interfaces/IGameStats';
-import clipboard from "clipboardy";
+import {IAnimationOptions} from "../interfaces/IAnimationOptions";
+
 
 const LocalStorage = require('localStorage');
 const dayjs = require('dayjs');
@@ -49,7 +58,7 @@ export const scoreGuessedWord = (tempState: IAppState) => {
     })
 
     //Avoid calculating ORANGE if user has already guessed the word.
-    if (correctLetters === 6)
+    if (correctLetters === WORD_LENGTH)
         return true;
 
     //Calculate ORANGE second
@@ -253,6 +262,26 @@ export const JSONFromMap = (map: Map<any, number>) => {
 export const mapFromData = (JsonData: any) => {
     return new Map(JsonData);
 }
+
+export const animateCSS = (element: any, animation: string, options: IAnimationOptions = DEFAULT_ANIMATION_OPTIONS) =>
+    // We create a Promise and return it
+    new Promise((resolve, reject) => {
+        const animationName = `${options.prefix}${animation}`;
+        // const node = document.getElementById(elementId) //CONSIDER CHANGING ELEMENT ARG TO THIS
+        const node = element
+        node.style.setProperty('--animate-duration', options.duration);
+
+        node.classList.add(`${options.prefix}animated`, animationName, options.repeatTimes);
+
+        // When the animation ends, we clean the classes and resolve the Promise
+        function handleAnimationEnd(event:any) {
+            event.stopPropagation();
+            node.classList.remove(`${options.prefix}animated`, animationName);
+            resolve('Animation ended');
+        }
+
+        node.addEventListener('animationend', handleAnimationEnd, {once: true});
+    });
 
 //Quick helper function to return the greater of the two values provided... used as a setter for longestStreak
 const _calculateLongestStreak = (currentStreak: number, longestStreak: number): number => {

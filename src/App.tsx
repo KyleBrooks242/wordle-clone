@@ -1,11 +1,12 @@
 import React, {useEffect, useState} from 'react';
 import './styles/App.scss';
-import {InputComponent} from './components/InputComponent';
+import {GameTileComponent} from './components/GameTileComponent';
 import {KeyboardComponent} from './components/KeyboardComponent';
 import {IChurdleLetter} from './interfaces/IChurdleLetter';
 import {IAppState} from './interfaces/IAppState';
 import {GAME_STATUS, ICookieState} from './interfaces/ICookieState';
 import {
+    animateCSS,
     getInitialKeyboardMap, getLosingPhrase,
     getSubheaderText, getTimeStampRange, getWinningPhrase,
     getWordToGuess, getWordToGuessIndex,
@@ -25,11 +26,10 @@ import {StatsDialogComponent} from "./components/StatsDialogComponent";
 import clipboard from 'clipboardy';
 import {SettingsDialogComponent} from "./components/SettingsDialogComponent";
 import {HelpDialogComponent} from "./components/HelpDialogComponent";
+import { WORD_LENGTH, NUMBER_OF_GUESSES } from "./utils/constants";
+import {IAnimationOptions} from "./interfaces/IAnimationOptions";
 
 const LocalStorage = require('localStorage');
-
-const WORD_LENGTH = 6;
-const NUMBER_OF_GUESSES = 6;
 
 const wordToGuess = getWordToGuess();
 const keyboard = getInitialKeyboardMap();
@@ -103,12 +103,13 @@ const App = () => {
 
     // useEffect(() => {
     //     console.log("RUNNING THIS CODE");
-    //     window.addEventListener('keydown', (event) => {
-    //         console.log(`LetterIndex: ${state.letterIndex}`);
-    //         console.log(`GuessIndex: ${state.guessIndex}`)
-    //         handleOnClick(event.key)
-    //     });
+    //
+    //     document.addEventListener("keyup", (e) => {
+    //         let keyPressed = String(e.key)
+    //         handleOnClick(keyPressed);
+    //     })
     // }, []);
+
 
     const handleOnClick = (keyPressed: string) => {
         const tempState: IAppState = state;
@@ -122,6 +123,17 @@ const App = () => {
         }
 
         if (keyPressed === 'Enter' && state.letterIndex === WORD_LENGTH) {
+            const guess = document.getElementById(`guess-stack_${state.guessIndex}`);
+            //TODO this is where we check for the 'bomb' letter!
+            // if (state.hardMode && wordGuessed.includes(state.bombLetter)) {
+            //     const options: IAnimationOptions = {
+            //         prefix: 'animate__',
+            //         repeatTimes: "animate__repeat-2",
+            //         duration: '0.8s'
+            //     }
+            //     animateCSS(guess, 'flash', options);
+            // }
+
             if (isWordValid(wordGuessed)) {
                 const hasWon = scoreGuessedWord(state);
                 tempState.guessIndex += 1;
@@ -132,6 +144,7 @@ const App = () => {
                 setState({...tempState} )
             }
             else {
+                animateCSS(guess, 'shakeX')
                 displayInvalidWord();
             }
 
@@ -142,6 +155,8 @@ const App = () => {
             setState({...tempState})
         }
         else if (keyPressed >= 'a' && keyPressed <= 'z' && keyPressed !== 'Enter') {
+            const element = document.getElementById(`game-tile_${state.guessIndex}-${state.letterIndex}`);
+            animateCSS(element, 'pulse');
             if (state.letterIndex >= 0 && state.letterIndex <= WORD_LENGTH - 1) {
                 guessArray[state.guessIndex][state.letterIndex].value = keyPressed.toLowerCase();
                 tempState.letterIndex = ( state.letterIndex + 1 > WORD_LENGTH ) ? WORD_LENGTH : state.letterIndex + 1;
@@ -200,9 +215,9 @@ const App = () => {
             for (let j = 0; j < WORD_LENGTH; j++) {
                 const value = state.guessArray[i][j].value.toUpperCase();
                 const color = state.guessArray[i][j].color;
-                guessArray.push(<InputComponent value={value} color={color} isSelected={isSelected} key={j}/>)
+                guessArray.push(<GameTileComponent id={`game-tile_${i}-${j}`} value={value} color={color} isSelected={isSelected} key={j}/>)
             }
-            guessList.push(<Stack className={`guess-stack`} direction={'row'} spacing={.5} alignItems={'center'} key={i}>{guessArray}</Stack>)
+            guessList.push(<Stack id={`guess-stack_${i}`} className={`guess-stack`} direction={'row'} spacing={.5} alignItems={'center'} key={i}>{guessArray}</Stack>)
 
         }
         return guessList;
