@@ -54,6 +54,7 @@ const initialState: IAppState = {
     winningPhrase: getWinningPhrase(),
     losingPhrase: getLosingPhrase(),
     showStats: false,
+    hardMode: false,
     gameStats: {
         currentStreak: 0,
         longestStreak: 0,
@@ -233,7 +234,7 @@ const App = () => {
 
                 <StatsDialogComponent state={state} onCloseClick={() => handleHeaderButtonClicked('stats')} handleShareClick={() => handleShareClick()}/>
                 <SettingsDialogComponent isOpen={showSettings} onCloseClick={() => handleHeaderButtonClicked('settings')}/>
-                <HelpDialogComponent isOpen={showHelp} onCloseClick={() => handleHeaderButtonClicked('help')} />
+                <HelpDialogComponent hardMode={state.hardMode} isOpen={showHelp} onCloseClick={() => handleHeaderButtonClicked('help')} />
 
                 <Snackbar
                     className={'snackbar failure'}

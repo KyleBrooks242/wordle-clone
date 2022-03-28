@@ -33,9 +33,20 @@ body {
 .game-tile {
   width: 3rem;
   height: 3.5rem;
-  border: 2px solid $text-color;
+  text-align: center;
+  &.example-guess {
+    text-align: center;
+    width: 2rem;
+    height: 2.33rem;
+    transform: translateX(-2rem);
+
+    .game-tile-text {
+      font-size: 1.33rem;
+    }
+  }
+
   &.state-0 {
-    background-color: $not-guessed
+    background-color: $not-guessed;
   }
   &.state-1 {
     background-color:  $secondary
@@ -45,6 +56,9 @@ body {
   }
   &.state-3 {
     background-color: $incorrect-guess;
+  }
+  &.state-4 {
+    background-color: $bomb-color;
   }
   .game-tile-text {
     font-size: 2rem;
@@ -82,11 +96,6 @@ body {
       background-color: $incorrect-guess;
     }
   }
-}
-
-.MuiPaper-root {
-  justify-content: center;
-
 }
 
 .MuiSnackbar-root {
@@ -173,4 +182,9 @@ h4 {
     background-color: $success !important;
 
   }
+}
+
+//HELP DIALOG
+.help-content {
+  font-size: small;
 }

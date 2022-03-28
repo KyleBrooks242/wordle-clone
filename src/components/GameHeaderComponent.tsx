@@ -17,8 +17,8 @@ export const  GameHeaderComponent = (props: Props) => {
         <Box sx={{ flexGrow: 1}} className={'game-header'}>
             <AppBar position="static">
                 <Toolbar>
-                    <Grid container spacing={2}>
-                        <Grid item xs={2}>
+                    <Grid container spacing={2} alignContent={'center'}>
+                        <Grid item xs={2} justifyContent={'center'}>
                             <IconButton
                                 size="large"
                                 edge="start"
