@@ -102,16 +102,6 @@ const App = () => {
         }
     }, []);
 
-    // useEffect(() => {
-    //     console.log("RUNNING THIS CODE");
-    //
-    //     document.addEventListener("keyup", (e) => {
-    //         let keyPressed = String(e.key)
-    //         handleOnClick(keyPressed);
-    //     })
-    // }, []);
-
-
     const handleOnClick = (keyPressed: string) => {
         const tempState: IAppState = state;
         const guessArray: Array<Array<IChurdleLetter>> = tempState.guessArray;
@@ -177,6 +167,9 @@ const App = () => {
         else if (button === 'settings') {
             setShowSettings(!showSettings)
         }
+
+        else if (button === 'hardMode')
+            setState({...state, hardMode: !state.hardMode})
     }
 
     const getShareTextHeader = () => {
@@ -233,7 +226,7 @@ const App = () => {
             <Container>
 
                 <StatsDialogComponent state={state} onCloseClick={() => handleHeaderButtonClicked('stats')} handleShareClick={() => handleShareClick()}/>
-                <SettingsDialogComponent isOpen={showSettings} onCloseClick={() => handleHeaderButtonClicked('settings')}/>
+                <SettingsDialogComponent hardMode={state.hardMode} onHardModeClick={() => handleHeaderButtonClicked('hardMode')} isOpen={showSettings} onCloseClick={() => handleHeaderButtonClicked('settings')}/>
                 <HelpDialogComponent hardMode={state.hardMode} isOpen={showHelp} onCloseClick={() => handleHeaderButtonClicked('help')} />
 
                 <Snackbar

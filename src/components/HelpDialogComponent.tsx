@@ -18,9 +18,9 @@ export const HelpDialogComponent = (props: Props) => {
             <DialogTitle>RULES</DialogTitle>
             <DialogContent className={'help-content'}>
                 <Divider/>
-                <p>Guess the CHURDLE in {WORD_LENGTH} tries.</p>
+                <p>Guess the <b>CHURDLE</b> in {WORD_LENGTH} tries.</p>
                 <br/>
-                <p>Each guess must be a valid {WORD_LENGTH} word.</p>
+                <p>Each guess must be a valid {WORD_LENGTH} letter word.</p>
                 <br/>
                 <p>After each guess, the color of the tile will indicate how close your guess was to the correct word.</p>
                 <br/>
@@ -81,7 +81,7 @@ export const HelpDialogComponent = (props: Props) => {
 
             <Divider/>
             <br/>
-            <p>A new <b>CHURDLE</b> is available every 8 hours!</p>
+                <p>A new <b>CHURDLE</b> is available at <b>8AM</b>, <b>4PM</b>, and <b>12AM</b> <b>EST</b></p>
             </DialogContent>
         </Dialog>
     )
