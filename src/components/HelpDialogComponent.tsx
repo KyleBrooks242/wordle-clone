@@ -26,7 +26,7 @@ export const HelpDialogComponent = (props: Props) => {
                 <br/>
                 { props.hardMode &&
                 <div>
-                    <p>In hard mode, a <b>bomb</b> letter is randomly selected. Guessing the bomb letter will result in the entire guess
+                    <p>In bomb mode, a <b>bomb</b> letter is randomly selected. Guessing the bomb letter will result in the entire guess
                         not being scored.
                     </p>
                     <br/>

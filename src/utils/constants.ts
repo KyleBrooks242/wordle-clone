@@ -8,7 +8,8 @@ export enum GuessScore {
     NOT_GUESSED,
     WRONG_POSITION,
     CORRECT,
-    INCORRECT
+    INCORRECT,
+    BOMB
 }
 
 export enum SQUARE_MAP {

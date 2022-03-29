@@ -36,7 +36,7 @@ export const isDebug = false;
  * mark it GREEN. This is a problem, because the first 'C' should not be marked at all.
  * @param tempState
  */
-export const scoreGuessedWord = (tempState: IAppState) => {
+export const scoreGuessedWord = (tempState: IAppState, hasBomb: boolean = false) => {
     const userGuessedWord = tempState.guessArray[tempState.guessIndex];
     const actualWord = tempState.wordToGuess;
     const wordMap = actualWord.split('').map(letter => {
@@ -47,13 +47,22 @@ export const scoreGuessedWord = (tempState: IAppState) => {
     })
     let correctLetters = 0;
 
+    //Do this first and return. Don't bother calculating anything else!
+    if (hasBomb) {
+        userGuessedWord.forEach((letter: IChurdleLetter) => {
+            letter.color = GuessScore.BOMB;
+        })
+
+        return false;
+    }
+
     //Calculate all GREEN first
-    userGuessedWord.forEach((letter: IChurdleLetter, position: number) => {
-        if (letter.value === wordMap[position].letter) {
-            letter.color = GuessScore.CORRECT
+    userGuessedWord.forEach((userGuessedLetter: IChurdleLetter, position: number) => {
+        if (userGuessedLetter.value === wordMap[position].letter) {
+            userGuessedLetter.color = GuessScore.CORRECT
             wordMap[position].guessed = true;
             correctLetters++;
-            tempState.keyboard.set(letter.value, GuessScore.CORRECT);
+            tempState.keyboard.set(userGuessedLetter.value, GuessScore.CORRECT);
         }
     })
 
@@ -90,9 +99,9 @@ export const scoreGuessedWord = (tempState: IAppState) => {
     })
 
     //Final loop. Mark everything that is not GREEN or ORANGE as INCORRECT
-    userGuessedWord.forEach((letter: IChurdleLetter) => {
-        if (letter.color === GuessScore.NOT_GUESSED)
-            letter.color = GuessScore.INCORRECT;
+    userGuessedWord.forEach((userGuessedLetter: IChurdleLetter) => {
+        if (userGuessedLetter.color === GuessScore.NOT_GUESSED)
+            userGuessedLetter.color = GuessScore.INCORRECT;
     })
 
     return false;
@@ -131,6 +140,21 @@ export const getWordToGuessIndex = () => {
     const offset = _calculateOffset();
 
     return index + offset;
+}
+
+export const getBombLetter = (wordToGuess: string) => {
+    const possibleBombLetters:Array<string> = [];
+    let bombLetter;
+
+    for (let i = 97; i <  123; i++) {
+        const letter = String.fromCharCode(i);
+        if (!wordToGuess.includes(letter)) {
+            possibleBombLetters.push(letter);
+        }
+    }
+
+    bombLetter = possibleBombLetters[Math.floor(Math.random() * possibleBombLetters.length)];
+    return bombLetter;
 }
 
 export const getTimeStampRange = (forCountdown: boolean = false) => {

@@ -13,5 +13,6 @@ export interface IAppState  {
     losingPhrase: string
     showStats: boolean
     gameStats: IGameStats
-    hardMode: boolean;
+    bombMode: boolean;
+    bombLetter: string;
 }

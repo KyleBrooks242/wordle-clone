@@ -14,8 +14,8 @@ import {
 interface Props {
     isOpen: boolean
     onCloseClick: any
-    onHardModeClick: any
-    hardMode: boolean
+    onBombModeClick: any
+    bombMode: boolean
 }
 
 export const SettingsDialogComponent = (props: Props) => {
@@ -28,7 +28,7 @@ export const SettingsDialogComponent = (props: Props) => {
             <DialogContent>
                 <Divider/>
                 <FormGroup>
-                    <FormControlLabel control={<Switch onClick={() => props.onHardModeClick()} checked={props.hardMode} />} label="Hard Mode (WIP)" />
+                    <FormControlLabel control={<Switch onClick={() => props.onBombModeClick()} checked={props.bombMode} />} label="Bomb Mode (WIP)" />
                 </FormGroup>
             </DialogContent>
         </Dialog>

@@ -6,7 +6,7 @@ import {IChurdleLetter} from './interfaces/IChurdleLetter';
 import {IAppState} from './interfaces/IAppState';
 import {GAME_STATUS, ICookieState} from './interfaces/ICookieState';
 import {
-    animateCSS,
+    animateCSS, getBombLetter,
     getInitialKeyboardMap, getLosingPhrase,
     getSubheaderText, getTimeStampRange, getWinningPhrase,
     getWordToGuess, getWordToGuessIndex,
@@ -54,7 +54,8 @@ const initialState: IAppState = {
     winningPhrase: getWinningPhrase(),
     losingPhrase: getLosingPhrase(),
     showStats: false,
-    hardMode: false,
+    bombMode: false,
+    bombLetter: getBombLetter(wordToGuess),
     gameStats: {
         currentStreak: 0,
         longestStreak: 0,
@@ -102,7 +103,7 @@ const App = () => {
         }
     }, []);
 
-    const handleOnClick = (keyPressed: string) => {
+    const handleOnClick = async (keyPressed: string) => {
         const tempState: IAppState = state;
         const guessArray: Array<Array<IChurdleLetter>> = tempState.guessArray;
         const wordGuessed = guessArray[tempState.guessIndex].map((letter) => {
@@ -114,19 +115,30 @@ const App = () => {
         }
 
         if (keyPressed === 'Enter' && state.letterIndex === WORD_LENGTH) {
+
             const guess = document.getElementById(`guess-stack_${state.guessIndex}`);
-            //TODO this is where we check for the 'bomb' letter!
-            // if (state.hardMode && wordGuessed.includes(state.bombLetter)) {
-            //     const options: IAnimationOptions = {
-            //         prefix: 'animate__',
-            //         repeatTimes: "animate__repeat-2",
-            //         duration: '0.8s'
-            //     }
-            //     animateCSS(guess, 'flash', options);
-            // }
+            let hasWon: boolean = false;
+            let hasBomb: boolean = false;
 
             if (isWordValid(wordGuessed)) {
-                const hasWon = scoreGuessedWord(state);
+                if (state.bombMode && wordGuessed.includes(state.bombLetter)) {
+                    hasBomb = true;
+                    hasWon = scoreGuessedWord(state, true);
+                }
+                else {
+                    hasWon = scoreGuessedWord(state);
+                }
+
+                const options: IAnimationOptions = {
+                    prefix: 'animate__',
+                    repeatTimes: hasBomb ? "animate__repeat-2" : 'animate__repeat-1',
+                    duration: '0.8s'
+                }
+
+                if (!hasBomb) {
+                    await animateCSS(guess, 'fadeIn', options);
+                }
+                await animateCSS(guess, 'flash', options);
                 tempState.guessIndex += 1;
                 tempState.showStats = (hasWon || state.guessIndex === 6);
                 tempState.letterIndex = 0;
@@ -168,8 +180,8 @@ const App = () => {
             setShowSettings(!showSettings)
         }
 
-        else if (button === 'hardMode')
-            setState({...state, hardMode: !state.hardMode})
+        else if (button === 'bombMode')
+            setState({...state, bombMode: !state.bombMode})
     }
 
     const getShareTextHeader = () => {
@@ -221,13 +233,16 @@ const App = () => {
         setInvalidWord(true);
     }
 
+    console.log(state.wordToGuess)
+    console.log(state.bombLetter)
+
     return (
         <Div100vh className={'App'}>
             <Container>
 
                 <StatsDialogComponent state={state} onCloseClick={() => handleHeaderButtonClicked('stats')} handleShareClick={() => handleShareClick()}/>
-                <SettingsDialogComponent hardMode={state.hardMode} onHardModeClick={() => handleHeaderButtonClicked('hardMode')} isOpen={showSettings} onCloseClick={() => handleHeaderButtonClicked('settings')}/>
-                <HelpDialogComponent hardMode={state.hardMode} isOpen={showHelp} onCloseClick={() => handleHeaderButtonClicked('help')} />
+                <SettingsDialogComponent bombMode={state.bombMode} onBombModeClick={() => handleHeaderButtonClicked('bombMode')} isOpen={showSettings} onCloseClick={() => handleHeaderButtonClicked('settings')}/>
+                <HelpDialogComponent hardMode={state.bombMode} isOpen={showHelp} onCloseClick={() => handleHeaderButtonClicked('help')} />
 
                 <Snackbar
                     className={'snackbar failure'}
