@@ -6,14 +6,14 @@ import {IChurdleLetter} from './interfaces/IChurdleLetter';
 import {IAppState} from './interfaces/IAppState';
 import {GAME_STATUS, ICookieState} from './interfaces/ICookieState';
 import {
-    animateCSS, getBombLetter,
+    animateCSS, getBombLetter, getCookie,
     getInitialKeyboardMap, getLosingPhrase,
     getSubheaderText, getTimeStampRange, getWinningPhrase,
     getWordToGuess, getWordToGuessIndex,
     isWordValid,
     JSONFromMap,
-    mapFromData, refreshInvalidCookie,
-    scoreGuessedWord,
+    mapFromData, refreshAndSetInvalidCookie,
+    scoreGuessedWord, setCookie,
     updateCookie
 } from "./utils/helpers";
 import Container from '@mui/material/Container';
@@ -75,31 +75,33 @@ const App = () => {
     const [showHelp, setShowHelp] = useState(false);
     const [showSettings, setShowSettings] = useState(false);
 
+    /**
+     * This happens once, when the page is loaded/refreshed
+     */
     useEffect(() => {
-        let churdleCookie: ICookieState  = JSON.parse(LocalStorage.getItem('churdleCookie'));
-        const { startTime, endTime } = getTimeStampRange();
-        const isActiveChurdleWord = (churdleCookie?.lastPlayedTimestamp > startTime && churdleCookie?.lastPlayedTimestamp < endTime)
+        let churdleCookie = getCookie();
         //Cookie found and not expired
-        if (churdleCookie && isActiveChurdleWord) {
-            churdleCookie.gameState.keyboard = mapFromData(churdleCookie.gameState.keyboard)
+        if (churdleCookie && churdleCookie.gameState.wordToGuess === state.wordToGuess) {
+            console.log('VALID COOKIE');
             setState({...state, ...churdleCookie.gameState});
         }
         //Cookie found, but 'expired'
-        else if (churdleCookie && !isActiveChurdleWord) {
-            const refreshedCookie = refreshInvalidCookie(churdleCookie, state);
+        else if (churdleCookie && churdleCookie.gameState.wordToGuess !== state.wordToGuess) {
+            console.log('NOT valid cookie!!')
+            const refreshedCookie = refreshAndSetInvalidCookie(churdleCookie, state);
 
-            LocalStorage.setItem('churdleCookie', JSON.stringify(refreshedCookie));
             setState({...refreshedCookie.gameState})
         }
         //No cookie
         else {
+            console.log('NO COOKIE')
             churdleCookie = {
-                gameState: {...state, keyboard: JSONFromMap(state.keyboard)},
+                gameState: { ...state },
                 gameStatus: GAME_STATUS.NEW,
                 lastPlayedTimestamp: dayjs().unix(),
                 previousGameTimestamp: dayjs().unix()
             }
-            LocalStorage.setItem('churdleCookie', JSON.stringify(churdleCookie))
+            setCookie(churdleCookie)
         }
     }, []);
 
@@ -233,8 +235,8 @@ const App = () => {
         setInvalidWord(true);
     }
 
-    console.log(state.wordToGuess)
-    console.log(state.bombLetter)
+    // console.log(state.wordToGuess)
+    // console.log(state.bombLetter)
 
     return (
         <Div100vh className={'App'}>

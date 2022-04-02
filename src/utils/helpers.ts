@@ -127,9 +127,11 @@ export const getWordToGuess = ():string => {
         return 'treaty';
     }
 
-    const initialDate = dayjs('2022-03-15').unix();
-    const index = Math.floor((dayjs().subtract(initialDate, 's').unix()) / SECONDS_IN_A_DAY);
+    const initialDate = dayjs('2022-03-15').startOf('day').unix();
+    const index = Math.floor((dayjs().startOf('day').subtract(initialDate, 's').unix()) / SECONDS_IN_A_DAY);
+    console.log(`index: ${index}`);
     const offset = _calculateOffset();
+    console.log(`offset: ${offset}`);
 
     return ChurdleWords[index + offset];
 }
@@ -202,24 +204,45 @@ export const getInitialKeyboardMap = (): Map<string, any> => {
     return map;
 }
 
-export const updateCookie = (state: IAppState) => {
-    const churdleCookie: ICookieState  = JSON.parse(LocalStorage.getItem('churdleCookie'));
+export const getCookie = () => {
+    const cookie: ICookieState = JSON.parse(LocalStorage.getItem('churdleCookie'));
 
-    churdleCookie.gameState = {...state, keyboard: JSONFromMap(state.keyboard)}
-    churdleCookie.gameStatus = (state.hasWon || state.guessIndex === 6) ? GAME_STATUS.COMPLETE : GAME_STATUS.IN_PROGRESS
-    churdleCookie.lastPlayedTimestamp = dayjs().unix();
-
-    if (state.hasWon || state.guessIndex === 6) {
-        updateStats(state, churdleCookie)
-        //Have to update timestamps after calculating stats so streaks are calculated correctly
-        churdleCookie.previousGameTimestamp = churdleCookie.lastPlayedTimestamp
+    if (cookie && cookie.gameState?.keyboard !== {}) {
+        cookie.gameState.keyboard = mapFromData(cookie.gameState.keyboard);
+        return cookie;
     }
+    return null;
 
-    LocalStorage.setItem('churdleCookie', JSON.stringify(churdleCookie));
+}
+
+export const setCookie = (cookie: ICookieState) => {
+    cookie.gameState.keyboard = JSONFromMap(cookie.gameState.keyboard);
+    LocalStorage.setItem('churdleCookie', JSON.stringify(cookie));
+
+}
+
+export const updateCookie = (state: IAppState) => {
+    const churdleCookie = getCookie();
+    if (churdleCookie) {
+        churdleCookie.gameState = { ...state }
+
+        if(churdleCookie) {
+            churdleCookie.gameStatus = (state.hasWon || state.guessIndex === 6) ? GAME_STATUS.COMPLETE : GAME_STATUS.IN_PROGRESS
+            churdleCookie.lastPlayedTimestamp = dayjs().unix();
+
+            if (state.hasWon || state.guessIndex === 6) {
+                updateStats(state, churdleCookie)
+                //Have to update timestamps after calculating stats so streaks are calculated correctly
+                churdleCookie.previousGameTimestamp = churdleCookie.lastPlayedTimestamp
+            }
+
+            setCookie(churdleCookie);
+        }
+    }
     return;
 }
 
-export const refreshInvalidCookie = (cookie: ICookieState, newInitialState: IAppState) => {
+export const refreshAndSetInvalidCookie = (cookie: ICookieState, newInitialState: IAppState) => {
     //Update stats with existing data to correctly calculate winning streaks
     const gameState: IAppState = cookie.gameState;
     updateStats(cookie.gameState, cookie, true);
@@ -240,6 +263,10 @@ export const refreshInvalidCookie = (cookie: ICookieState, newInitialState: IApp
     cookie.gameStatus = GAME_STATUS.NEW;
     cookie.lastPlayedTimestamp = dayjs().unix();
     cookie.previousGameTimestamp = dayjs().unix();
+
+    setCookie(cookie);
+
+    cookie.gameState.keyboard = mapFromData(cookie.gameState.keyboard);
 
     return cookie;
 
