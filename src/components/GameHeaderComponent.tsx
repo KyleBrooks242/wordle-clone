@@ -16,10 +16,16 @@ export const  GameHeaderComponent = (props: Props) => {
         <Box sx={{ flexGrow: 1}} className={'game-header'}>
             <AppBar position={'static'}>
                 <Toolbar>
-                    <Grid container spacing={1} alignItems={'center'}>
-                        <Grid item xs={2}>
+                    <Grid
+                        container
+                        justifyContent={'space-evenly'}
+                        alignItems={'center'}
+                        direction={'row'}
+                        columns={14}
+                    >
+                        <Grid item xs={3}>
                             <IconButton
-                                size="large"
+                                size="small"
                                 edge="start"
                                 color="inherit"
                                 aria-label="menu"
@@ -35,9 +41,9 @@ export const  GameHeaderComponent = (props: Props) => {
                                 <p>{props.state.subHeader}</p>
                         </Grid>
 
-                        <Grid item xs={2}>
+                        <Grid item xs={3}>
                             <IconButton
-                                size="large"
+                                size="small"
                                 edge="start"
                                 color="inherit"
                                 aria-label="stats"
@@ -48,7 +54,7 @@ export const  GameHeaderComponent = (props: Props) => {
                             </IconButton>
 
                             <IconButton
-                                size="large"
+                                size="small"
                                 edge="start"
                                 color="inherit"
                                 aria-label="settings"
