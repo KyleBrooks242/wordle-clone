@@ -1,5 +1,3 @@
-import {IAnimationOptions} from "../interfaces/IAnimationOptions";
-
 export const WORD_LENGTH = 6;
 
 export const NUMBER_OF_GUESSES = 6;
@@ -30,10 +28,4 @@ export const DAY_SECTIONS = {
     SECTION_TWO_END: 57600,
     SECTION_THREE_START: 57601,
     SECTION_THREE_END: 86400
-}
-
-export const DEFAULT_ANIMATION_OPTIONS: IAnimationOptions = {
-    prefix: 'animate__',
-    repeatTimes: 'animate__repeat-1',
-    duration: '0.4s'
 }

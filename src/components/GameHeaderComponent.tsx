@@ -5,7 +5,6 @@ import { IAppState } from '../interfaces/IAppState';
 import BarChartIcon from "@mui/icons-material/BarChart";
 import HelpIcon from '@mui/icons-material/Help';
 import SettingsIcon from '@mui/icons-material/Settings';
-import 'animate.css';
 
 interface Props {
     state: IAppState;
@@ -15,10 +14,10 @@ interface Props {
 export const  GameHeaderComponent = (props: Props) => {
     return (
         <Box sx={{ flexGrow: 1}} className={'game-header'}>
-            <AppBar position="static">
+            <AppBar position={'static'}>
                 <Toolbar>
-                    <Grid container spacing={2} alignContent={'center'}>
-                        <Grid item xs={2} justifyContent={'center'}>
+                    <Grid container spacing={1} alignItems={'center'}>
+                        <Grid item xs={2}>
                             <IconButton
                                 size="large"
                                 edge="start"

@@ -1,18 +1,23 @@
 import React, {useEffect, useState} from 'react';
 import './styles/App.scss';
-import {GameTileComponent} from './components/GameTileComponent';
-import {KeyboardComponent} from './components/KeyboardComponent';
-import {IChurdleLetter} from './interfaces/IChurdleLetter';
-import {IAppState} from './interfaces/IAppState';
-import {GAME_STATUS, ICookieState} from './interfaces/ICookieState';
+import 'animate.css';
+import { GameTileComponent } from './components/GameTileComponent';
+import { KeyboardComponent } from './components/KeyboardComponent';
+import { IChurdleLetter } from './interfaces/IChurdleLetter';
+import { IAppState } from './interfaces/IAppState';
+import { GAME_STATUS } from './interfaces/ICookieState';
 import {
-    animateCSS, getBombLetter, getCookie,
-    getInitialKeyboardMap, getLosingPhrase,
-    getSubheaderText, getTimeStampRange, getWinningPhrase,
-    getWordToGuess, getWordToGuessIndex,
+    animateCSS,
+    customExplosionAnimation,
+    getCookie,
+    getInitialKeyboardMap,
+    getLosingPhrase,
+    getSubheaderText,
+    getWinningPhrase,
+    getWordToGuessAndBombLetter,
+    getWordToGuessIndex,
     isWordValid,
-    JSONFromMap,
-    mapFromData, refreshAndSetInvalidCookie,
+    refreshAndSetInvalidCookie,
     scoreGuessedWord, setCookie,
     updateCookie
 } from "./utils/helpers";
@@ -27,13 +32,12 @@ import clipboard from 'clipboardy';
 import {SettingsDialogComponent} from "./components/SettingsDialogComponent";
 import {HelpDialogComponent} from "./components/HelpDialogComponent";
 import { WORD_LENGTH, NUMBER_OF_GUESSES } from "./utils/constants";
-import {IAnimationOptions} from "./interfaces/IAnimationOptions";
 
-const LocalStorage = require('localStorage');
-
-const wordToGuess = getWordToGuess();
+const { wordToGuess, bombLetter } = getWordToGuessAndBombLetter();
 const keyboard = getInitialKeyboardMap();
-const subheader = getSubheaderText()
+const subheader = getSubheaderText();
+const winningPhrase = getWinningPhrase();
+const losingPhrase = getLosingPhrase();
 
 const initialState: IAppState = {
     guessArray : [
@@ -51,11 +55,11 @@ const initialState: IAppState = {
     hasWon: false,
     keyboard: keyboard,
     subHeader: subheader,
-    winningPhrase: getWinningPhrase(),
-    losingPhrase: getLosingPhrase(),
+    winningPhrase: winningPhrase,
+    losingPhrase: losingPhrase,
     showStats: false,
     bombMode: false,
-    bombLetter: getBombLetter(wordToGuess),
+    bombLetter: bombLetter,
     gameStats: {
         currentStreak: 0,
         longestStreak: 0,
@@ -131,16 +135,20 @@ const App = () => {
                     hasWon = scoreGuessedWord(state);
                 }
 
-                const options: IAnimationOptions = {
-                    prefix: 'animate__',
-                    repeatTimes: hasBomb ? "animate__repeat-2" : 'animate__repeat-1',
-                    duration: '0.8s'
-                }
+                await animateCSS(guess, 'flash',hasBomb ? '0.8s' : '1.6s');
 
-                if (!hasBomb) {
-                    await animateCSS(guess, 'fadeIn', options);
+                if (hasBomb) {
+                    const elements: Array<any> = [];
+                    for (let i = 0; i < 6; i++) {
+                        elements.push(document.getElementById(`game-tile_${state.guessIndex}-${i}`));
+                        console.log('animating!!');
+                    }
+                    await customExplosionAnimation(elements, 'particle', '1.2s');
+
                 }
-                await animateCSS(guess, 'flash', options);
+                else {
+                    await animateCSS(guess, 'fadeIn','0.8s');
+                }
                 tempState.guessIndex += 1;
                 tempState.showStats = (hasWon || state.guessIndex === 6);
                 tempState.letterIndex = 0;
@@ -235,8 +243,8 @@ const App = () => {
         setInvalidWord(true);
     }
 
-    // console.log(state.wordToGuess)
-    // console.log(state.bombLetter)
+    console.log(state.wordToGuess)
+    console.log(state.bombLetter)
 
     return (
         <Div100vh className={'App'}>

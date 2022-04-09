@@ -5,6 +5,16 @@
     background-color: $incorrect-guess !important;
   }
   vertical-align: center;
+
+  .MuiIconButton-root {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .MuiToolbar-gutters {
+    padding-left: 0;
+    padding-right: 0;
+  }
 }
 
 h2 {
@@ -188,3 +198,22 @@ h4 {
 .help-content {
   font-size: small;
 }
+
+@keyframes explode {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+    transform: translate3d(0, -800%, 0) rotate3d(0, 0, 1, 360deg);
+  }
+}
+
+.explode {
+  animation-name: explode;
+}
+
+
+
+

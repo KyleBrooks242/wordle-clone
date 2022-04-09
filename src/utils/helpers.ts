@@ -2,22 +2,18 @@ import {IChurdleLetter} from '../interfaces/IChurdleLetter';
 import {IAppState} from '../interfaces/IAppState';
 import {
     DAY_SECTIONS,
-    DEFAULT_ANIMATION_OPTIONS,
     GuessScore,
     SECONDS_IN_A_DAY,
     SECONDS_PER_GAME,
-    SQUARE_MAP,
     WORD_LENGTH
 } from './constants';
 import {ValidWords} from '../word-lists/ValidWords';
-import {ChurdleWords} from '../word-lists/ChurdleWords';
+import {BombLetters, ChurdleWords} from '../word-lists/ChurdleWords';
 import {WinningPhrases} from '../word-lists/WinningPhrases';
 import {LosingPhrases} from '../word-lists/LosingPhrases';
 import {SubheaderPhrases} from '../word-lists/SubheaderPhrases';
 import {GAME_STATUS, ICookieState} from '../interfaces/ICookieState';
 import {IGameStats} from '../interfaces/IGameStats';
-import {IAnimationOptions} from "../interfaces/IAnimationOptions";
-
 
 const LocalStorage = require('localStorage');
 const dayjs = require('dayjs');
@@ -121,10 +117,10 @@ export const isWordValid = (wordGuessed: string): boolean => {
  * and count up from there. To get 3 Churdles a day, we can divide a day into 3 sections and calculate
  * an additional offset based on what the current time is when the user plays.
  */
-export const getWordToGuess = ():string => {
+export const getWordToGuessAndBombLetter = () => {
 
     if (isDebug) {
-        return 'treaty';
+        return { wordToGuess: 'tready', bombLetter: 'p' }
     }
 
     const initialDate = dayjs('2022-03-15').startOf('day').unix();
@@ -133,7 +129,10 @@ export const getWordToGuess = ():string => {
     const offset = _calculateOffset();
     console.log(`offset: ${offset}`);
 
-    return ChurdleWords[index + offset];
+    const wordToGuess = ChurdleWords[index + offset];
+    const bombLetter = BombLetters[index + offset];
+
+    return { wordToGuess: wordToGuess, bombLetter: bombLetter }
 }
 
 export const getWordToGuessIndex = () => {
@@ -247,17 +246,18 @@ export const refreshAndSetInvalidCookie = (cookie: ICookieState, newInitialState
     const gameState: IAppState = cookie.gameState;
     updateStats(cookie.gameState, cookie, true);
 
-    gameState.guessArray= newInitialState.guessArray;
-    gameState.guessIndex = newInitialState.guessIndex;
-    gameState.letterIndex = newInitialState.letterIndex;
-    gameState.wordToGuess = newInitialState.wordToGuess;
-    gameState.hasWon = false;
-    gameState.keyboard = newInitialState.keyboard;
-    gameState.subHeader = newInitialState.subHeader;
+    gameState.guessArray    = newInitialState.guessArray;
+    gameState.guessIndex    = newInitialState.guessIndex;
+    gameState.letterIndex   = newInitialState.letterIndex;
+    gameState.wordToGuess   = newInitialState.wordToGuess;
+    gameState.bombLetter    = newInitialState.bombLetter
+    gameState.hasWon        = false;
+    gameState.keyboard      = newInitialState.keyboard;
+    gameState.subHeader     = newInitialState.subHeader;
     gameState.winningPhrase = newInitialState.winningPhrase;
-    gameState.losingPhrase = newInitialState.losingPhrase;
-    gameState.showStats = false;
-    gameState.gameStats = cookie.gameState.gameStats
+    gameState.losingPhrase  = newInitialState.losingPhrase;
+    gameState.showStats     = false;
+    gameState.gameStats     = cookie.gameState.gameStats
 
     cookie.gameState = gameState;
     cookie.gameStatus = GAME_STATUS.NEW;
@@ -314,25 +314,51 @@ export const mapFromData = (JsonData: any) => {
     return new Map(JsonData);
 }
 
-export const animateCSS = (element: any, animation: string, options: IAnimationOptions = DEFAULT_ANIMATION_OPTIONS) =>
+export const animateCSS = (element: any, animation: string, duration:string = '0.4s', prefix:string = 'animate__') =>
     // We create a Promise and return it
     new Promise((resolve, reject) => {
-        const animationName = `${options.prefix}${animation}`;
+        const animationName = `${prefix}${animation}`;
         // const node = document.getElementById(elementId) //CONSIDER CHANGING ELEMENT ARG TO THIS
         const node = element
-        node.style.setProperty('--animate-duration', options.duration);
+        node.style.setProperty('--animate-duration', duration);
 
-        node.classList.add(`${options.prefix}animated`, animationName, options.repeatTimes);
+        node.classList.add(`${prefix}animated`, animationName);
+
 
         // When the animation ends, we clean the classes and resolve the Promise
         function handleAnimationEnd(event:any) {
             event.stopPropagation();
-            node.classList.remove(`${options.prefix}animated`, animationName);
+            node.classList.remove(`${prefix}animated`, animationName);
             resolve('Animation ended');
         }
 
         node.addEventListener('animationend', handleAnimationEnd, {once: true});
     });
+
+
+export const customExplosionAnimation = (elements: Array<any>, animation: string, duration:string = '0.4s') =>
+    new Promise((resolve, reject) => {
+        const animationName = animation;
+        // const node = document.getElementById(elementId) //CONSIDER CHANGING ELEMENT ARG TO THIS
+
+        for (let element of elements) {
+            element.style.setProperty('animation-duration', duration);
+            element.classList.add(animationName);
+            element.addEventListener('animationend', handleAnimationEnd, {once: true});
+
+            // When the animation ends, we clean the classes and resolve the Promise
+            function handleAnimationEnd(event:any) {
+                event.stopPropagation();
+                element.classList.remove(animationName);
+                resolve('Animation ended');
+            }
+        }
+
+
+
+
+    });
+
 
 //Quick helper function to return the greater of the two values provided... used as a setter for longestStreak
 const _calculateLongestStreak = (currentStreak: number, longestStreak: number): number => {
