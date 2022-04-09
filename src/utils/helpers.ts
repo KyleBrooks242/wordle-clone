@@ -125,9 +125,7 @@ export const getWordToGuessAndBombLetter = () => {
 
     const initialDate = dayjs('2022-03-15').startOf('day').unix();
     const index = Math.floor((dayjs().startOf('day').subtract(initialDate, 's').unix()) / SECONDS_IN_A_DAY);
-    console.log(`index: ${index}`);
     const offset = _calculateOffset();
-    console.log(`offset: ${offset}`);
 
     const wordToGuess = ChurdleWords[index + offset];
     const bombLetter = BombLetters[index + offset];

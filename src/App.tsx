@@ -86,19 +86,16 @@ const App = () => {
         let churdleCookie = getCookie();
         //Cookie found and not expired
         if (churdleCookie && churdleCookie.gameState.wordToGuess === state.wordToGuess) {
-            console.log('VALID COOKIE');
             setState({...state, ...churdleCookie.gameState});
         }
         //Cookie found, but 'expired'
         else if (churdleCookie && churdleCookie.gameState.wordToGuess !== state.wordToGuess) {
-            console.log('NOT valid cookie!!')
             const refreshedCookie = refreshAndSetInvalidCookie(churdleCookie, state);
 
             setState({...refreshedCookie.gameState})
         }
         //No cookie
         else {
-            console.log('NO COOKIE')
             churdleCookie = {
                 gameState: { ...state },
                 gameStatus: GAME_STATUS.NEW,
@@ -141,7 +138,6 @@ const App = () => {
                     const elements: Array<any> = [];
                     for (let i = 0; i < 6; i++) {
                         elements.push(document.getElementById(`game-tile_${state.guessIndex}-${i}`));
-                        console.log('animating!!');
                     }
                     await customExplosionAnimation(elements, 'particle', '1.2s');
 
@@ -242,9 +238,6 @@ const App = () => {
     const displayInvalidWord = () => {
         setInvalidWord(true);
     }
-
-    console.log(state.wordToGuess)
-    console.log(state.bombLetter)
 
     return (
         <Div100vh className={'App'}>
