@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/churdle/static/css/main.71fda9e6.css",
-    "main.js": "/churdle/static/js/main.55ffb16a.js",
+    "main.js": "/churdle/static/js/main.d130daf5.js",
     "static/js/787.80b1299a.chunk.js": "/churdle/static/js/787.80b1299a.chunk.js",
     "index.html": "/churdle/index.html",
     "main.71fda9e6.css.map": "/churdle/static/css/main.71fda9e6.css.map",
-    "main.55ffb16a.js.map": "/churdle/static/js/main.55ffb16a.js.map",
+    "main.d130daf5.js.map": "/churdle/static/js/main.d130daf5.js.map",
     "787.80b1299a.chunk.js.map": "/churdle/static/js/787.80b1299a.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.71fda9e6.css",
-    "static/js/main.55ffb16a.js"
+    "static/js/main.d130daf5.js"
   ]
 }
