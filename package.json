@@ -23,7 +23,7 @@
     "dayjs": "^1.11.0",
     "gh-pages": "^3.2.3",
     "localStorage": "^1.0.4",
-    "node-sass": "^7.0.1",
+    "node-sass": "^9.0.0",
     "react": "^17.0.2",
     "react-countdown": "^2.3.2",
     "react-div-100vh": "^0.7.0",
