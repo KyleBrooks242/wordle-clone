@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/churdle/static/css/main.71fda9e6.css",
-    "main.js": "/churdle/static/js/main.baa27028.js",
-    "static/js/787.80b1299a.chunk.js": "/churdle/static/js/787.80b1299a.chunk.js",
+    "main.css": "/churdle/static/css/main.f382fa0d.css",
+    "main.js": "/churdle/static/js/main.2bdfe49c.js",
+    "static/js/787.224749cd.chunk.js": "/churdle/static/js/787.224749cd.chunk.js",
     "index.html": "/churdle/index.html",
-    "main.71fda9e6.css.map": "/churdle/static/css/main.71fda9e6.css.map",
-    "main.baa27028.js.map": "/churdle/static/js/main.baa27028.js.map",
-    "787.80b1299a.chunk.js.map": "/churdle/static/js/787.80b1299a.chunk.js.map"
+    "main.f382fa0d.css.map": "/churdle/static/css/main.f382fa0d.css.map",
+    "main.2bdfe49c.js.map": "/churdle/static/js/main.2bdfe49c.js.map",
+    "787.224749cd.chunk.js.map": "/churdle/static/js/787.224749cd.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.71fda9e6.css",
-    "static/js/main.baa27028.js"
+    "static/css/main.f382fa0d.css",
+    "static/js/main.2bdfe49c.js"
   ]
 }
