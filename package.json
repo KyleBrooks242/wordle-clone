@@ -1,7 +1,7 @@
 {
   "name": "churdle",
   "version": "1.0.0",
-  "homepage": "https://KyleBrooks242.github.io/churdle",
+  "homepage": "https://churdle-git-develop-kyle-brooks-projects.vercel.app/",
   "private": true,
   "devDependencies": {
     "@testing-library/jest-dom": "^5.16.1",
