@@ -21,7 +21,7 @@ const customParseFormat = require('dayjs/plugin/customParseFormat')
 dayjs.extend(customParseFormat)
 
 //Convenience flag for debugging
-export const isDebug = false;
+export const isDebug = process.env['DEBUG'] === "true" ? true : false;
 
 /**
  * There may be a more efficient way to do this. Looping over the word twice - first to calculate GREEN tiles, then
@@ -126,13 +126,9 @@ export const getWordToGuessAndBombLetter = () => {
     const initialDate = dayjs('2025-01-01').startOf('day').unix();
     const index = Math.floor((dayjs().startOf('day').subtract(initialDate, 's').unix()) / SECONDS_IN_A_DAY);
     const offset = _calculateOffset();
-    console.log(offset);
-    console.log(index);
 
     const wordToGuess = ChurdleWords[index + offset];
     const bombLetter = BombLetters[index + offset];
-
-    console.log(`wordToGuess: ${wordToGuess}`);
 
     return { wordToGuess: wordToGuess, bombLetter: bombLetter }
 }
