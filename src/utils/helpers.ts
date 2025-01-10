@@ -67,7 +67,7 @@ export const scoreGuessedWord = (tempState: IAppState, hasBomb: boolean = false)
         return true;
 
     //Calculate ORANGE second
-    userGuessedWord.forEach((userGuessedLetter: IChurdleLetter, index) => {
+    userGuessedWord.forEach((userGuessedLetter: IChurdleLetter) => {
         if (actualWord.includes(userGuessedLetter.value)) {
             for (const wordMapItem of wordMap) {
                 if (wordMapItem.letter === userGuessedLetter.value && !wordMapItem.guessed) {
@@ -123,18 +123,22 @@ export const getWordToGuessAndBombLetter = () => {
         return { wordToGuess: 'tready', bombLetter: 'p' }
     }
 
-    const initialDate = dayjs('2022-03-15').startOf('day').unix();
+    const initialDate = dayjs('2025-01-01').startOf('day').unix();
     const index = Math.floor((dayjs().startOf('day').subtract(initialDate, 's').unix()) / SECONDS_IN_A_DAY);
     const offset = _calculateOffset();
+    console.log(offset);
+    console.log(index);
 
     const wordToGuess = ChurdleWords[index + offset];
     const bombLetter = BombLetters[index + offset];
+
+    console.log(`wordToGuess: ${wordToGuess}`);
 
     return { wordToGuess: wordToGuess, bombLetter: bombLetter }
 }
 
 export const getWordToGuessIndex = () => {
-    const initialDate = dayjs('2022-03-15').unix();
+    const initialDate = dayjs('2025-01-01').unix();
     const index = Math.floor((dayjs().subtract(initialDate, 's').unix()) / SECONDS_IN_A_DAY);
     const offset = _calculateOffset();
 
@@ -204,7 +208,7 @@ export const getInitialKeyboardMap = (): Map<string, any> => {
 export const getCookie = () => {
     const cookie: ICookieState = JSON.parse(LocalStorage.getItem('churdleCookie'));
 
-    if (cookie && cookie.gameState?.keyboard !== {}) {
+    if (cookie && JSON.stringify(cookie.gameState?.keyboard) !== '{}') {
         cookie.gameState.keyboard = mapFromData(cookie.gameState.keyboard);
         return cookie;
     }
