@@ -1,14 +1,19 @@
 import {IChurdleLetter} from '../interfaces/IChurdleLetter';
 import {IAppState} from '../interfaces/IAppState';
-import {DAY_SECTIONS, GuessScore, SECONDS_IN_A_DAY, SECONDS_PER_GAME, SQUARE_MAP} from './constants';
+import {
+    DAY_SECTIONS,
+    GuessScore,
+    SECONDS_IN_A_DAY,
+    SECONDS_PER_GAME,
+    WORD_LENGTH
+} from './constants';
 import {ValidWords} from '../word-lists/ValidWords';
-import {ChurdleWords} from '../word-lists/ChurdleWords';
+import {BombLetters, ChurdleWords} from '../word-lists/ChurdleWords';
 import {WinningPhrases} from '../word-lists/WinningPhrases';
 import {LosingPhrases} from '../word-lists/LosingPhrases';
 import {SubheaderPhrases} from '../word-lists/SubheaderPhrases';
 import {GAME_STATUS, ICookieState} from '../interfaces/ICookieState';
 import {IGameStats} from '../interfaces/IGameStats';
-import clipboard from "clipboardy";
 
 const LocalStorage = require('localStorage');
 const dayjs = require('dayjs');
@@ -16,7 +21,7 @@ const customParseFormat = require('dayjs/plugin/customParseFormat')
 dayjs.extend(customParseFormat)
 
 //Convenience flag for debugging
-export const isDebug = false;
+export const isDebug = process.env['DEBUG'] === "true" ? true : false;
 
 /**
  * There may be a more efficient way to do this. Looping over the word twice - first to calculate GREEN tiles, then
@@ -27,7 +32,7 @@ export const isDebug = false;
  * mark it GREEN. This is a problem, because the first 'C' should not be marked at all.
  * @param tempState
  */
-export const scoreGuessedWord = (tempState: IAppState) => {
+export const scoreGuessedWord = (tempState: IAppState, hasBomb: boolean = false) => {
     const userGuessedWord = tempState.guessArray[tempState.guessIndex];
     const actualWord = tempState.wordToGuess;
     const wordMap = actualWord.split('').map(letter => {
@@ -38,22 +43,31 @@ export const scoreGuessedWord = (tempState: IAppState) => {
     })
     let correctLetters = 0;
 
+    //Do this first and return. Don't bother calculating anything else!
+    if (hasBomb) {
+        userGuessedWord.forEach((letter: IChurdleLetter) => {
+            letter.color = GuessScore.BOMB;
+        })
+
+        return false;
+    }
+
     //Calculate all GREEN first
-    userGuessedWord.forEach((letter: IChurdleLetter, position: number) => {
-        if (letter.value === wordMap[position].letter) {
-            letter.color = GuessScore.CORRECT
+    userGuessedWord.forEach((userGuessedLetter: IChurdleLetter, position: number) => {
+        if (userGuessedLetter.value === wordMap[position].letter) {
+            userGuessedLetter.color = GuessScore.CORRECT
             wordMap[position].guessed = true;
             correctLetters++;
-            tempState.keyboard.set(letter.value, GuessScore.CORRECT);
+            tempState.keyboard.set(userGuessedLetter.value, GuessScore.CORRECT);
         }
     })
 
     //Avoid calculating ORANGE if user has already guessed the word.
-    if (correctLetters === 6)
+    if (correctLetters === WORD_LENGTH)
         return true;
 
     //Calculate ORANGE second
-    userGuessedWord.forEach((userGuessedLetter: IChurdleLetter, index) => {
+    userGuessedWord.forEach((userGuessedLetter: IChurdleLetter) => {
         if (actualWord.includes(userGuessedLetter.value)) {
             for (const wordMapItem of wordMap) {
                 if (wordMapItem.letter === userGuessedLetter.value && !wordMapItem.guessed) {
@@ -81,9 +95,9 @@ export const scoreGuessedWord = (tempState: IAppState) => {
     })
 
     //Final loop. Mark everything that is not GREEN or ORANGE as INCORRECT
-    userGuessedWord.forEach((letter: IChurdleLetter) => {
-        if (letter.color === GuessScore.NOT_GUESSED)
-            letter.color = GuessScore.INCORRECT;
+    userGuessedWord.forEach((userGuessedLetter: IChurdleLetter) => {
+        if (userGuessedLetter.color === GuessScore.NOT_GUESSED)
+            userGuessedLetter.color = GuessScore.INCORRECT;
     })
 
     return false;
@@ -103,25 +117,43 @@ export const isWordValid = (wordGuessed: string): boolean => {
  * and count up from there. To get 3 Churdles a day, we can divide a day into 3 sections and calculate
  * an additional offset based on what the current time is when the user plays.
  */
-export const getWordToGuess = ():string => {
+export const getWordToGuessAndBombLetter = () => {
 
     if (isDebug) {
-        return 'treaty';
+        return { wordToGuess: 'tready', bombLetter: 'p' }
     }
 
-    const initialDate = dayjs('2022-03-15').unix();
-    const index = Math.floor((dayjs().subtract(initialDate, 's').unix()) / SECONDS_IN_A_DAY);
+    const initialDate = dayjs('2025-01-01').startOf('day').unix();
+    const index = Math.floor((dayjs().startOf('day').subtract(initialDate, 's').unix()) / SECONDS_IN_A_DAY);
     const offset = _calculateOffset();
 
-    return ChurdleWords[index + offset];
+    const wordToGuess = ChurdleWords[index + offset];
+    const bombLetter = BombLetters[index + offset];
+
+    return { wordToGuess: wordToGuess, bombLetter: bombLetter }
 }
 
 export const getWordToGuessIndex = () => {
-    const initialDate = dayjs('2022-03-15').unix();
+    const initialDate = dayjs('2025-01-01').unix();
     const index = Math.floor((dayjs().subtract(initialDate, 's').unix()) / SECONDS_IN_A_DAY);
     const offset = _calculateOffset();
 
     return index + offset;
+}
+
+export const getBombLetter = (wordToGuess: string) => {
+    const possibleBombLetters:Array<string> = [];
+    let bombLetter;
+
+    for (let i = 97; i <  123; i++) {
+        const letter = String.fromCharCode(i);
+        if (!wordToGuess.includes(letter)) {
+            possibleBombLetters.push(letter);
+        }
+    }
+
+    bombLetter = possibleBombLetters[Math.floor(Math.random() * possibleBombLetters.length)];
+    return bombLetter;
 }
 
 export const getTimeStampRange = (forCountdown: boolean = false) => {
@@ -169,44 +201,70 @@ export const getInitialKeyboardMap = (): Map<string, any> => {
     return map;
 }
 
-export const updateCookie = (state: IAppState) => {
-    const churdleCookie: ICookieState  = JSON.parse(LocalStorage.getItem('churdleCookie'));
+export const getCookie = () => {
+    const cookie: ICookieState = JSON.parse(LocalStorage.getItem('churdleCookie'));
 
-    churdleCookie.gameState = {...state, keyboard: JSONFromMap(state.keyboard)}
-    churdleCookie.gameStatus = (state.hasWon || state.guessIndex === 6) ? GAME_STATUS.COMPLETE : GAME_STATUS.IN_PROGRESS
-    churdleCookie.lastPlayedTimestamp = dayjs().unix();
-
-    if (state.hasWon || state.guessIndex === 6) {
-        updateStats(state, churdleCookie)
-        //Have to update timestamps after calculating stats so streaks are calculated correctly
-        churdleCookie.previousGameTimestamp = churdleCookie.lastPlayedTimestamp
+    if (cookie && JSON.stringify(cookie.gameState?.keyboard) !== '{}') {
+        cookie.gameState.keyboard = mapFromData(cookie.gameState.keyboard);
+        return cookie;
     }
+    return null;
 
-    LocalStorage.setItem('churdleCookie', JSON.stringify(churdleCookie));
+}
+
+export const setCookie = (cookie: ICookieState) => {
+    cookie.gameState.keyboard = JSONFromMap(cookie.gameState.keyboard);
+    LocalStorage.setItem('churdleCookie', JSON.stringify(cookie));
+
+}
+
+export const updateCookie = (state: IAppState) => {
+    const churdleCookie = getCookie();
+    if (churdleCookie) {
+        churdleCookie.gameState = { ...state }
+
+        if(churdleCookie) {
+            churdleCookie.gameStatus = (state.hasWon || state.guessIndex === 6) ? GAME_STATUS.COMPLETE : GAME_STATUS.IN_PROGRESS
+            churdleCookie.lastPlayedTimestamp = dayjs().unix();
+
+            if (state.hasWon || state.guessIndex === 6) {
+                updateStats(state, churdleCookie)
+                //Have to update timestamps after calculating stats so streaks are calculated correctly
+                churdleCookie.previousGameTimestamp = churdleCookie.lastPlayedTimestamp
+            }
+
+            setCookie(churdleCookie);
+        }
+    }
     return;
 }
 
-export const refreshInvalidCookie = (cookie: ICookieState, newInitialState: IAppState) => {
+export const refreshAndSetInvalidCookie = (cookie: ICookieState, newInitialState: IAppState) => {
     //Update stats with existing data to correctly calculate winning streaks
     const gameState: IAppState = cookie.gameState;
     updateStats(cookie.gameState, cookie, true);
 
-    gameState.guessArray= newInitialState.guessArray;
-    gameState.guessIndex = newInitialState.guessIndex;
-    gameState.letterIndex = newInitialState.letterIndex;
-    gameState.wordToGuess = newInitialState.wordToGuess;
-    gameState.hasWon = false;
-    gameState.keyboard = newInitialState.keyboard;
-    gameState.subHeader = newInitialState.subHeader;
+    gameState.guessArray    = newInitialState.guessArray;
+    gameState.guessIndex    = newInitialState.guessIndex;
+    gameState.letterIndex   = newInitialState.letterIndex;
+    gameState.wordToGuess   = newInitialState.wordToGuess;
+    gameState.bombLetter    = newInitialState.bombLetter
+    gameState.hasWon        = false;
+    gameState.keyboard      = newInitialState.keyboard;
+    gameState.subHeader     = newInitialState.subHeader;
     gameState.winningPhrase = newInitialState.winningPhrase;
-    gameState.losingPhrase = newInitialState.losingPhrase;
-    gameState.showStats = false;
-    gameState.gameStats = cookie.gameState.gameStats
+    gameState.losingPhrase  = newInitialState.losingPhrase;
+    gameState.showStats     = false;
+    gameState.gameStats     = cookie.gameState.gameStats
 
     cookie.gameState = gameState;
     cookie.gameStatus = GAME_STATUS.NEW;
     cookie.lastPlayedTimestamp = dayjs().unix();
     cookie.previousGameTimestamp = dayjs().unix();
+
+    setCookie(cookie);
+
+    cookie.gameState.keyboard = mapFromData(cookie.gameState.keyboard);
 
     return cookie;
 
@@ -253,6 +311,52 @@ export const JSONFromMap = (map: Map<any, number>) => {
 export const mapFromData = (JsonData: any) => {
     return new Map(JsonData);
 }
+
+export const animateCSS = (element: any, animation: string, duration:string = '0.4s', prefix:string = 'animate__') =>
+    // We create a Promise and return it
+    new Promise((resolve, reject) => {
+        const animationName = `${prefix}${animation}`;
+        // const node = document.getElementById(elementId) //CONSIDER CHANGING ELEMENT ARG TO THIS
+        const node = element
+        node.style.setProperty('--animate-duration', duration);
+
+        node.classList.add(`${prefix}animated`, animationName);
+
+
+        // When the animation ends, we clean the classes and resolve the Promise
+        function handleAnimationEnd(event:any) {
+            event.stopPropagation();
+            node.classList.remove(`${prefix}animated`, animationName);
+            resolve('Animation ended');
+        }
+
+        node.addEventListener('animationend', handleAnimationEnd, {once: true});
+    });
+
+
+export const customExplosionAnimation = (elements: Array<any>, animation: string, duration:string = '0.4s') =>
+    new Promise((resolve, reject) => {
+        const animationName = animation;
+        // const node = document.getElementById(elementId) //CONSIDER CHANGING ELEMENT ARG TO THIS
+
+        for (let element of elements) {
+            element.style.setProperty('animation-duration', duration);
+            element.classList.add(animationName);
+            element.addEventListener('animationend', handleAnimationEnd, {once: true});
+
+            // When the animation ends, we clean the classes and resolve the Promise
+            function handleAnimationEnd(event:any) {
+                event.stopPropagation();
+                element.classList.remove(animationName);
+                resolve('Animation ended');
+            }
+        }
+
+
+
+
+    });
+
 
 //Quick helper function to return the greater of the two values provided... used as a setter for longestStreak
 const _calculateLongestStreak = (currentStreak: number, longestStreak: number): number => {

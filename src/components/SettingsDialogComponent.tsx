@@ -1,9 +1,21 @@
 import React from "react";
-import {Box, Button, Container, Dialog, DialogContent, DialogTitle, Divider} from "@mui/material";
+import {
+    Box,
+    Button,
+    Container,
+    Dialog,
+    DialogContent,
+    DialogTitle,
+    Divider,
+    FormControlLabel, FormGroup,
+    Switch
+} from "@mui/material";
 
 interface Props {
     isOpen: boolean
     onCloseClick: any
+    onBombModeClick: any
+    bombMode: boolean
 }
 
 export const SettingsDialogComponent = (props: Props) => {
@@ -14,7 +26,10 @@ export const SettingsDialogComponent = (props: Props) => {
         >
             <DialogTitle>SETTINGS</DialogTitle>
             <DialogContent>
-                Here is were the settings content wil go!
+                <Divider/>
+                <FormGroup>
+                    <FormControlLabel control={<Switch onClick={() => props.onBombModeClick()} checked={props.bombMode} />} label="Bomb Mode (WIP)" />
+                </FormGroup>
             </DialogContent>
         </Dialog>
     )

@@ -1,18 +1,24 @@
 import React, {useEffect, useState} from 'react';
 import './styles/App.scss';
-import {InputComponent} from './components/InputComponent';
-import {KeyboardComponent} from './components/KeyboardComponent';
-import {IChurdleLetter} from './interfaces/IChurdleLetter';
-import {IAppState} from './interfaces/IAppState';
-import {GAME_STATUS, ICookieState} from './interfaces/ICookieState';
+import 'animate.css';
+import { GameTileComponent } from './components/GameTileComponent';
+import { KeyboardComponent } from './components/KeyboardComponent';
+import { IChurdleLetter } from './interfaces/IChurdleLetter';
+import { IAppState } from './interfaces/IAppState';
+import { GAME_STATUS } from './interfaces/ICookieState';
 import {
-    getInitialKeyboardMap, getLosingPhrase,
-    getSubheaderText, getTimeStampRange, getWinningPhrase,
-    getWordToGuess, getWordToGuessIndex,
+    animateCSS,
+    customExplosionAnimation,
+    getCookie,
+    getInitialKeyboardMap,
+    getLosingPhrase,
+    getSubheaderText,
+    getWinningPhrase,
+    getWordToGuessAndBombLetter,
+    getWordToGuessIndex,
     isWordValid,
-    JSONFromMap,
-    mapFromData, refreshInvalidCookie,
-    scoreGuessedWord,
+    refreshAndSetInvalidCookie,
+    scoreGuessedWord, setCookie,
     updateCookie
 } from "./utils/helpers";
 import Container from '@mui/material/Container';
@@ -25,15 +31,13 @@ import {StatsDialogComponent} from "./components/StatsDialogComponent";
 import clipboard from 'clipboardy';
 import {SettingsDialogComponent} from "./components/SettingsDialogComponent";
 import {HelpDialogComponent} from "./components/HelpDialogComponent";
+import { WORD_LENGTH, NUMBER_OF_GUESSES } from "./utils/constants";
 
-const LocalStorage = require('localStorage');
-
-const WORD_LENGTH = 6;
-const NUMBER_OF_GUESSES = 6;
-
-const wordToGuess = getWordToGuess();
+const { wordToGuess, bombLetter } = getWordToGuessAndBombLetter();
 const keyboard = getInitialKeyboardMap();
-const subheader = getSubheaderText()
+const subheader = getSubheaderText();
+const winningPhrase = getWinningPhrase();
+const losingPhrase = getLosingPhrase();
 
 const initialState: IAppState = {
     guessArray : [
@@ -51,9 +55,11 @@ const initialState: IAppState = {
     hasWon: false,
     keyboard: keyboard,
     subHeader: subheader,
-    winningPhrase: getWinningPhrase(),
-    losingPhrase: getLosingPhrase(),
+    winningPhrase: winningPhrase,
+    losingPhrase: losingPhrase,
     showStats: false,
+    bombMode: false,
+    bombLetter: bombLetter,
     gameStats: {
         currentStreak: 0,
         longestStreak: 0,
@@ -73,44 +79,34 @@ const App = () => {
     const [showHelp, setShowHelp] = useState(false);
     const [showSettings, setShowSettings] = useState(false);
 
+    /**
+     * This happens once, when the page is loaded/refreshed
+     */
     useEffect(() => {
-        let churdleCookie: ICookieState  = JSON.parse(LocalStorage.getItem('churdleCookie'));
-        const { startTime, endTime } = getTimeStampRange();
-        const isActiveChurdleWord = (churdleCookie?.lastPlayedTimestamp > startTime && churdleCookie?.lastPlayedTimestamp < endTime)
+        let churdleCookie = getCookie();
         //Cookie found and not expired
-        if (churdleCookie && isActiveChurdleWord) {
-            churdleCookie.gameState.keyboard = mapFromData(churdleCookie.gameState.keyboard)
+        if (churdleCookie && churdleCookie.gameState.wordToGuess === state.wordToGuess) {
             setState({...state, ...churdleCookie.gameState});
         }
         //Cookie found, but 'expired'
-        else if (churdleCookie && !isActiveChurdleWord) {
-            const refreshedCookie = refreshInvalidCookie(churdleCookie, state);
+        else if (churdleCookie && churdleCookie.gameState.wordToGuess !== state.wordToGuess) {
+            const refreshedCookie = refreshAndSetInvalidCookie(churdleCookie, state);
 
-            LocalStorage.setItem('churdleCookie', JSON.stringify(refreshedCookie));
             setState({...refreshedCookie.gameState})
         }
         //No cookie
         else {
             churdleCookie = {
-                gameState: {...state, keyboard: JSONFromMap(state.keyboard)},
+                gameState: { ...state },
                 gameStatus: GAME_STATUS.NEW,
                 lastPlayedTimestamp: dayjs().unix(),
                 previousGameTimestamp: dayjs().unix()
             }
-            LocalStorage.setItem('churdleCookie', JSON.stringify(churdleCookie))
+            setCookie(churdleCookie)
         }
     }, []);
 
-    // useEffect(() => {
-    //     console.log("RUNNING THIS CODE");
-    //     window.addEventListener('keydown', (event) => {
-    //         console.log(`LetterIndex: ${state.letterIndex}`);
-    //         console.log(`GuessIndex: ${state.guessIndex}`)
-    //         handleOnClick(event.key)
-    //     });
-    // }, []);
-
-    const handleOnClick = (keyPressed: string) => {
+    const handleOnClick = async (keyPressed: string) => {
         const tempState: IAppState = state;
         const guessArray: Array<Array<IChurdleLetter>> = tempState.guessArray;
         const wordGuessed = guessArray[tempState.guessIndex].map((letter) => {
@@ -122,8 +118,33 @@ const App = () => {
         }
 
         if (keyPressed === 'Enter' && state.letterIndex === WORD_LENGTH) {
+
+            const guess = document.getElementById(`guess-stack_${state.guessIndex}`);
+            let hasWon: boolean = false;
+            let hasBomb: boolean = false;
+
             if (isWordValid(wordGuessed)) {
-                const hasWon = scoreGuessedWord(state);
+                if (state.bombMode && wordGuessed.includes(state.bombLetter)) {
+                    hasBomb = true;
+                    hasWon = scoreGuessedWord(state, true);
+                }
+                else {
+                    hasWon = scoreGuessedWord(state);
+                }
+
+                await animateCSS(guess, 'flash',hasBomb ? '0.8s' : '1.6s');
+
+                if (hasBomb) {
+                    const elements: Array<any> = [];
+                    for (let i = 0; i < 6; i++) {
+                        elements.push(document.getElementById(`game-tile_${state.guessIndex}-${i}`));
+                    }
+                    await customExplosionAnimation(elements, 'particle', '1.2s');
+
+                }
+                else {
+                    await animateCSS(guess, 'fadeIn','0.8s');
+                }
                 tempState.guessIndex += 1;
                 tempState.showStats = (hasWon || state.guessIndex === 6);
                 tempState.letterIndex = 0;
@@ -132,6 +153,7 @@ const App = () => {
                 setState({...tempState} )
             }
             else {
+                animateCSS(guess, 'shakeX')
                 displayInvalidWord();
             }
 
@@ -142,6 +164,8 @@ const App = () => {
             setState({...tempState})
         }
         else if (keyPressed >= 'a' && keyPressed <= 'z' && keyPressed !== 'Enter') {
+            const element = document.getElementById(`game-tile_${state.guessIndex}-${state.letterIndex}`);
+            animateCSS(element, 'pulse');
             if (state.letterIndex >= 0 && state.letterIndex <= WORD_LENGTH - 1) {
                 guessArray[state.guessIndex][state.letterIndex].value = keyPressed.toLowerCase();
                 tempState.letterIndex = ( state.letterIndex + 1 > WORD_LENGTH ) ? WORD_LENGTH : state.letterIndex + 1;
@@ -161,6 +185,9 @@ const App = () => {
         else if (button === 'settings') {
             setShowSettings(!showSettings)
         }
+
+        else if (button === 'bombMode')
+            setState({...state, bombMode: !state.bombMode})
     }
 
     const getShareTextHeader = () => {
@@ -200,9 +227,9 @@ const App = () => {
             for (let j = 0; j < WORD_LENGTH; j++) {
                 const value = state.guessArray[i][j].value.toUpperCase();
                 const color = state.guessArray[i][j].color;
-                guessArray.push(<InputComponent value={value} color={color} isSelected={isSelected} key={j}/>)
+                guessArray.push(<GameTileComponent id={`game-tile_${i}-${j}`} value={value} color={color} isSelected={isSelected} key={j}/>)
             }
-            guessList.push(<Stack className={`guess-stack`} direction={'row'} spacing={.5} alignItems={'center'} key={i}>{guessArray}</Stack>)
+            guessList.push(<Stack id={`guess-stack_${i}`} className={`guess-stack`} direction={'row'} spacing={.5} alignItems={'center'} key={i}>{guessArray}</Stack>)
 
         }
         return guessList;
@@ -217,8 +244,8 @@ const App = () => {
             <Container>
 
                 <StatsDialogComponent state={state} onCloseClick={() => handleHeaderButtonClicked('stats')} handleShareClick={() => handleShareClick()}/>
-                <SettingsDialogComponent isOpen={showSettings} onCloseClick={() => handleHeaderButtonClicked('settings')}/>
-                <HelpDialogComponent isOpen={showHelp} onCloseClick={() => handleHeaderButtonClicked('help')} />
+                <SettingsDialogComponent bombMode={state.bombMode} onBombModeClick={() => handleHeaderButtonClicked('bombMode')} isOpen={showSettings} onCloseClick={() => handleHeaderButtonClicked('settings')}/>
+                <HelpDialogComponent hardMode={state.bombMode} isOpen={showHelp} onCloseClick={() => handleHeaderButtonClicked('help')} />
 
                 <Snackbar
                     className={'snackbar failure'}

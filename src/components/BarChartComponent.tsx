@@ -22,7 +22,7 @@ export const BarChartComponent = (props: Props) => {
 
             chart.push(
                 <div className={'bar-chart-rectangle'} style={{'width': `${style}`}} key={i}>
-                    <div className={'bar-chart-outer-label'}>{i + 1}|</div>
+                    <div className={'bar-chart-outer-label'}>{i + 1}</div>
                     <div className={'bar-chart-inner-value'}>{timesWon}</div>
                 </div>
             )

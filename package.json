@@ -1,16 +1,16 @@
 {
   "name": "churdle",
   "version": "1.0.0",
-  "homepage": "https://KyleBrooks242.github.io/churdle",
+  "homepage": "https://churdle-git-develop-kyle-brooks-projects.vercel.app/",
   "private": true,
   "devDependencies": {
-    "@types/node": "^16.11.21",
-    "@types/react": "^17.0.38",
-    "@types/react-dom": "^17.0.11",
     "@testing-library/jest-dom": "^5.16.1",
     "@testing-library/react": "^12.1.2",
     "@testing-library/user-event": "^13.5.0",
-    "@types/jest": "^27.4.0"
+    "@types/jest": "^27.4.0",
+    "@types/node": "^16.11.21",
+    "@types/react": "^17.0.38",
+    "@types/react-dom": "^17.0.11"
   },
   "dependencies": {
     "@emotion/react": "^11.7.1",
@@ -18,17 +18,17 @@
     "@mui/icons-material": "^5.5.0",
     "@mui/material": "^5.3.0",
     "@testing-library/react": "^12.1.4",
-    "as-basic-bar-chart": "^1.0.1",
+    "animate.css": "^4.1.1",
     "clipboardy": "^3.0.0",
     "dayjs": "^1.11.0",
     "gh-pages": "^3.2.3",
     "localStorage": "^1.0.4",
-    "node-sass": "^7.0.1",
     "react": "^17.0.2",
     "react-countdown": "^2.3.2",
     "react-div-100vh": "^0.7.0",
     "react-dom": "^17.0.2",
     "react-scripts": "5.0.0",
+    "sass": "^1.83.1",
     "typescript": "^4.5.5",
     "web-vitals": "^2.1.4"
   },

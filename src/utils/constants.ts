@@ -1,16 +1,21 @@
+export const WORD_LENGTH = 6;
+
+export const NUMBER_OF_GUESSES = 6;
+
 export enum GuessScore {
     NOT_GUESSED,
     WRONG_POSITION,
     CORRECT,
-    INCORRECT
+    INCORRECT,
+    BOMB
 }
 
-
 export enum SQUARE_MAP {
-    '🔲',
+    '⬜',
     '🟧',
     '🟩',
-    '⬛'
+    '⬛️',
+    '🟥'
 }
 
 export const SECONDS_IN_A_DAY = 86400;
